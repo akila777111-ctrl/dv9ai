@@ -1,11 +1,20 @@
 import "./App.css";
 
+const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL || "#contact";
+const telegramIsConfigured = telegramBotUrl.startsWith("https://t.me/");
+
 export default function App() {
   return (
     <main className="page">
       <nav className="nav">
         <div className="logo">DV9</div>
-        <a href="#contact">Ранний доступ</a>
+        <a
+          href={telegramBotUrl}
+          target={telegramIsConfigured ? "_blank" : undefined}
+          rel={telegramIsConfigured ? "noreferrer" : undefined}
+        >
+          Открыть AI-пилот
+        </a>
       </nav>
 
       <section className="hero">
@@ -17,7 +26,13 @@ export default function App() {
         </p>
 
         <div className="buttons">
-          <a href="#contact">Запустить DV9</a>
+          <a
+            href={telegramBotUrl}
+            target={telegramIsConfigured ? "_blank" : undefined}
+            rel={telegramIsConfigured ? "noreferrer" : undefined}
+          >
+            Запустить в Telegram
+          </a>
           <a className="ghost" href="#modules">Смотреть модули</a>
         </div>
       </section>
@@ -36,15 +51,25 @@ export default function App() {
           <p>Цифровая защита, аудит, мониторинг и безопасная архитектура.</p>
         </div>
         <div className="card">
-          <h2>Agent Network</h2>
-          <p>Сеть AI-помощников для задач, клиентов, данных и автоматизации.</p>
+          <h2>Telegram Command Center</h2>
+          <p>Единый защищённый шлюз для DV9 SYSTEM, AI PILOT, PREMIUM и строительного бота.</p>
         </div>
       </section>
 
       <section id="contact" className="cta">
-        <h2>DV9 запускается</h2>
-        <p>Первый сайт проекта. Следующий шаг — GitHub, Vercel и домен dv9.com.ua.</p>
-        <button>Ранний доступ</button>
+        <h2>Сеть ботов DV9 готовится к запуску</h2>
+        <p>
+          Сайт, Telegram и AI-ядро соединяются через защищённый backend. После
+          добавления токенов бот отвечает на команды, показывает статус и передаёт запросы AI-модели.
+        </p>
+        <a
+          className="ctaButton"
+          href={telegramBotUrl}
+          target={telegramIsConfigured ? "_blank" : undefined}
+          rel={telegramIsConfigured ? "noreferrer" : undefined}
+        >
+          Войти в DV9
+        </a>
       </section>
     </main>
   );
