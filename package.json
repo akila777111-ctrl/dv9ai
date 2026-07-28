@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "test": "node --test",
     "telegram:register": "node scripts/register-telegram-webhooks.mjs"
   },
   "dependencies": {

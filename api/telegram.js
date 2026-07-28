@@ -10,6 +10,7 @@ const BOT_DEFINITIONS = [
     secretEnv: "TELEGRAM_SYSTEM_WEBHOOK_SECRET",
     role: "Центральный командный бот и диспетчер экосистемы DV9.",
     privateByDefault: true,
+    allowPublicMode: false,
   },
   {
     id: "aipilot",
@@ -18,6 +19,7 @@ const BOT_DEFINITIONS = [
     secretEnv: "TELEGRAM_AIPILOT_WEBHOOK_SECRET",
     role: "AI-пилот для диалога, проектов и автоматизации.",
     privateByDefault: true,
+    allowPublicMode: true,
   },
   {
     id: "premium",
@@ -26,6 +28,7 @@ const BOT_DEFINITIONS = [
     secretEnv: "TELEGRAM_PREMIUM_WEBHOOK_SECRET",
     role: "Доступ к премиальным модулям, заявкам и подпискам DV9.",
     privateByDefault: true,
+    allowPublicMode: true,
   },
   {
     id: "construction",
@@ -34,6 +37,7 @@ const BOT_DEFINITIONS = [
     secretEnv: "TELEGRAM_CONSTRUCTION_WEBHOOK_SECRET",
     role: "Строительный контроль, дефекты, акты, материалы и отчёты.",
     privateByDefault: true,
+    allowPublicMode: true,
   },
 ];
 
@@ -55,9 +59,9 @@ function configuredBots() {
 function parseIdList(value) {
   return new Set(
     value
-      .split(",")
+      .split(/[\s,]+/)
       .map((item) => item.trim())
-      .filter(Boolean),
+      .filter((item) => /^\d+$/.test(item)),
   );
 }
 
@@ -140,6 +144,7 @@ function ownerIds() {
 }
 
 function isPrivateBot(bot) {
+  if (!bot.allowPublicMode) return true;
   const override = env(`TELEGRAM_${bot.id.toUpperCase()}_PRIVATE`);
   if (override) return override.toLowerCase() !== "false";
   return bot.privateByDefault;
@@ -304,7 +309,7 @@ function botsText() {
 }
 
 function siteKeyboard() {
-  const siteUrl = env("DV9_SITE_URL", "https://dv9.com.ua");
+  const siteUrl = env("DV9_SITE_URL", "https://www.dv9.com.ua");
   return {
     inline_keyboard: [[{ text: "🌐 Открыть DV9", url: siteUrl }]],
   };
@@ -367,7 +372,7 @@ async function handleMessage(bot, message) {
     const isTimeout = error?.name === "AbortError";
     console.error("DV9 AI request failed", {
       bot: bot.id,
-      error: isTimeout ? "timeout" : String(error?.message || error),
+      error: isTimeout ? "timeout" : "provider-error",
     });
     await sendText(
       bot,
@@ -427,11 +432,11 @@ export default {
     try {
       await handleUpdate(bot, update);
       return json({ ok: true });
-    } catch (error) {
+    } catch {
       console.error("DV9 Telegram update failed", {
         bot: bot.id,
         updateId: update?.update_id,
-        error: String(error?.message || error),
+        error: "update-handler-error",
       });
       // Return 200 to prevent Telegram from retrying a permanently bad update.
       return json({ ok: true, handled: false });
