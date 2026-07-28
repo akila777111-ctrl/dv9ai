@@ -52,7 +52,9 @@ body {
 
 .nav a,
 .buttons a,
+.ctaButton,
 button {
+  display: inline-block;
   background: #00ff66;
   color: #020617;
   padding: 13px 20px;
@@ -151,9 +153,18 @@ h1 {
   margin-top: 0;
 }
 
+.ctaButton {
+  margin-top: 12px;
+}
+
 @media (max-width: 700px) {
   .nav {
     padding: 0 5%;
+  }
+
+  .nav a {
+    padding: 11px 13px;
+    font-size: 13px;
   }
 
   .hero {
@@ -167,6 +178,10 @@ h1 {
   .cta {
     margin: 40px 5% 70px;
     padding: 32px;
+  }
+
+  .cta h2 {
+    font-size: 34px;
   }
 
   .lead {
