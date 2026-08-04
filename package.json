@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "node --test",
+    "launch:check": "node scripts/launch-check.mjs",
     "telegram:register": "node scripts/register-telegram-webhooks.mjs"
   },
   "dependencies": {
