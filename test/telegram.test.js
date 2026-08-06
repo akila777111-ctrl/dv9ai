@@ -11,6 +11,8 @@ const ENV_NAMES = [
   "DV9_AI_BASE_URL",
   "DV9_AI_API_KEY",
   "DV9_AI_MODEL",
+  "DV9_AI_ENABLED",
+  "VERCEL_ENV",
   "DV9_SITE_URL",
 ];
 const BOT_TOKEN = `123456:${"A".repeat(24)}`;
@@ -85,13 +87,17 @@ test("GET exposes only the safe diagnostic contract", async () => {
       assert.equal(response.status, 200);
       assert.deepEqual(Object.keys(body).sort(), [
         "aiConfigured",
+        "aiRuntimeStatus",
         "configuredBots",
+        "deploymentMode",
         "ok",
         "service",
         "timestamp",
       ]);
       assert.deepEqual(body.configuredBots, ["system"]);
       assert.equal(body.aiConfigured, false);
+      assert.equal(body.aiRuntimeStatus, "AI_DISABLED");
+      assert.equal(body.deploymentMode, "STANDARD");
       assert.equal(Number.isNaN(Date.parse(body.timestamp)), false);
       assert.equal(JSON.stringify(body).includes(BOT_TOKEN), false);
       assert.equal(JSON.stringify(body).includes(WEBHOOK_SECRET), false);
@@ -174,6 +180,43 @@ test("all six commands work for the owner and AI remains owner-only", async () =
           ["sendMessage"],
         );
         assert.match(recorder.calls.at(-1).body.text, /ограничен владельцем/);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    },
+  );
+});
+
+
+test("preview keeps AI disabled even when provider credentials are present", async () => {
+  await withEnvironment(
+    {
+      TELEGRAM_SYSTEM_BOT_TOKEN: BOT_TOKEN,
+      TELEGRAM_SYSTEM_WEBHOOK_SECRET: WEBHOOK_SECRET,
+      TELEGRAM_OWNER_IDS: "42",
+      DV9_AI_BASE_URL: "https://ai.example.invalid/v1",
+      DV9_AI_API_KEY: "preview-key",
+      DV9_AI_MODEL: "preview-model",
+      DV9_AI_ENABLED: "true",
+      VERCEL_ENV: "preview",
+    },
+    async () => {
+      const originalFetch = globalThis.fetch;
+      const recorder = telegramFetchRecorder();
+      globalThis.fetch = recorder.fetch;
+      try {
+        const health = await telegramHandler.fetch(new Request("https://preview.invalid/api/telegram"));
+        const healthBody = await health.json();
+        assert.equal(healthBody.aiConfigured, false);
+        assert.equal(healthBody.aiRuntimeStatus, "PREVIEW_ONLY");
+        assert.equal(healthBody.deploymentMode, "PREVIEW_ONLY");
+
+        await telegramHandler.fetch(updateRequest("Платный AI-запрос", 42));
+        assert.deepEqual(
+          recorder.calls.slice(-2).map((call) => call.method),
+          ["sendChatAction", "sendMessage"],
+        );
+        assert.match(recorder.calls.at(-1).body.text, /PREVIEW_ONLY/);
       } finally {
         globalThis.fetch = originalFetch;
       }

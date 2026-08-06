@@ -152,10 +152,11 @@ Vercel Node runtime поддерживает используемый Web Standa
 DV9_AI_BASE_URL=https://integrate.api.nvidia.com/v1
 DV9_AI_API_KEY=<sensitive provider key>
 DV9_AI_MODEL=moonshotai/kimi-k2.6
+DV9_AI_ENABLED=false
 DV9_AI_TIMEOUT_MS=45000
 ```
 
-Gateway ожидает OpenAI-compatible endpoint `/chat/completions`. `DV9_AI_API_KEY` хранить только как Sensitive server-side переменную Vercel.
+Gateway ожидает OpenAI-compatible endpoint `/chat/completions`. `DV9_AI_API_KEY` хранить только как Sensitive server-side переменную Vercel. Платные вызовы требуют отдельного подтверждения владельца и `DV9_AI_ENABLED=true`; в Preview они всегда заблокированы со статусом `PREVIEW_ONLY`.
 
 ## Безопасность
 
