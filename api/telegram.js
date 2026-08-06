@@ -196,12 +196,19 @@ function aiConfigured() {
   return Boolean(config.baseUrl && config.apiKey && config.model);
 }
 
+function aiRuntimeStatus() {
+  if (env("VERCEL_ENV").toLowerCase() === "preview") return "PREVIEW_ONLY";
+  if (env("DV9_AI_ENABLED").toLowerCase() !== "true") return "AI_DISABLED";
+  return aiConfigured() ? "AI_ENABLED" : "AI_DISABLED";
+}
+
 async function askAi(bot, userText) {
   const config = aiConfig();
-  if (!config.baseUrl || !config.apiKey || !config.model) {
+  const runtimeStatus = aiRuntimeStatus();
+  if (runtimeStatus !== "AI_ENABLED") {
     return [
-      "Связь с Telegram уже работает, но AI-ядро ещё не активировано.",
-      "Нужно добавить в Vercel: DV9_AI_BASE_URL, DV9_AI_API_KEY и DV9_AI_MODEL.",
+      `AI runtime: ${runtimeStatus}.`,
+      "Связь с Telegram работает, но платные AI-вызовы отключены до явного подтверждения владельца.",
     ].join("\n\n");
   }
 
@@ -279,6 +286,7 @@ function startText(bot, fromId) {
 
 function statusText(bot) {
   const ai = aiConfig();
+  const runtimeStatus = aiRuntimeStatus();
   const owners = ownerIds();
   const accessMode = !isPrivateBot(bot)
     ? "публичный"
@@ -289,8 +297,8 @@ function statusText(bot) {
   return [
     `Узел: ${bot.title}`,
     "Telegram webhook: ONLINE",
-    `AI-ядро: ${aiConfigured() ? "ONLINE" : "ожидает ключ и модель"}`,
-    `Модель: ${ai.model || "не задана"}`,
+    `AI runtime: ${runtimeStatus}`,
+    `Модель: ${runtimeStatus === "AI_ENABLED" ? ai.model : "не активирована"}`,
     `Режим доступа: ${accessMode}`,
   ].join("\n");
 }
@@ -309,7 +317,14 @@ function botsText() {
 }
 
 function siteKeyboard() {
-  const siteUrl = env("DV9_SITE_URL", "https://www.dv9.com.ua");
+  const siteUrl = env("DV9_SITE_URL");
+  if (!siteUrl) return null;
+  try {
+    const parsed = new URL(siteUrl);
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password) return null;
+  } catch {
+    return null;
+  }
   return {
     inline_keyboard: [[{ text: "🌐 Открыть DV9", url: siteUrl }]],
   };
@@ -340,7 +355,8 @@ async function handleMessage(bot, message) {
   }
 
   if (command === "/start" || command === "/help") {
-    await sendText(bot, chatId, startText(bot, fromId), { reply_markup: siteKeyboard() });
+    const keyboard = siteKeyboard();
+    await sendText(bot, chatId, startText(bot, fromId), keyboard ? { reply_markup: keyboard } : {});
     return;
   }
   if (command === "/status") {
@@ -356,7 +372,13 @@ async function handleMessage(bot, message) {
     return;
   }
   if (command === "/site") {
-    await sendText(bot, chatId, "Сайт DV9:", { reply_markup: siteKeyboard() });
+    const keyboard = siteKeyboard();
+    await sendText(
+      bot,
+      chatId,
+      keyboard ? "Сайт DV9:" : "Ссылка на сайт не настроена для этого окружения.",
+      keyboard ? { reply_markup: keyboard } : {},
+    );
     return;
   }
 
@@ -407,7 +429,9 @@ export default {
         ok: true,
         service: "dv9-telegram-gateway",
         configuredBots: configuredBots().map((bot) => bot.id),
-        aiConfigured: aiConfigured(),
+        aiConfigured: aiRuntimeStatus() === "AI_ENABLED",
+        aiRuntimeStatus: aiRuntimeStatus(),
+        deploymentMode: env("VERCEL_ENV").toLowerCase() === "preview" ? "PREVIEW_ONLY" : "STANDARD",
         timestamp: new Date().toISOString(),
       });
     }

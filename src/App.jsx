@@ -1,4 +1,5 @@
 import "./App.css";
+import GatewayStatus from "./components/GatewayStatus";
 
 const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL || "#contact";
 const telegramIsConfigured = telegramBotUrl.startsWith("https://t.me/");
@@ -37,6 +38,8 @@ export default function App() {
         </div>
       </section>
 
+      <GatewayStatus />
+
       <section id="modules" className="cards">
         <div className="card">
           <h2>AI Brain</h2>
@@ -49,6 +52,10 @@ export default function App() {
         <div className="card">
           <h2>Security Layer</h2>
           <p>Цифровая защита, аудит, мониторинг и безопасная архитектура.</p>
+        </div>
+        <div className="card" id="digital-asset">
+          <h2>Digital Asset</h2>
+          <p>Preview-витрина цифрового актива DV9 без выпуска токенов, контрактов и финансовых операций.</p>
         </div>
         <div className="card">
           <h2>Telegram Command Center</h2>

@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "node --test",
     "launch:check": "node scripts/launch-check.mjs",
-    "telegram:register": "node scripts/register-telegram-webhooks.mjs"
+    "telegram:register": "node scripts/register-telegram-webhooks.mjs",
+    "postbuild": "node scripts/vercel-telegram-postbuild.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",

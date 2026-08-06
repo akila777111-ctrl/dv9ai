@@ -81,6 +81,8 @@ export async function runLaunchCheck({
   }
 
   const aiPresent = AI_ENV.filter((name) => present(environment, name));
+  const aiEnabled = environment.DV9_AI_ENABLED?.trim().toLowerCase() === "true";
+  const previewOnly = environment.VERCEL_ENV?.trim().toLowerCase() === "preview";
   if (aiPresent.length === 0) {
     warn("NOT_CONFIGURED AI: отсутствуют все три серверные AI-переменные.");
   } else if (aiPresent.length !== AI_ENV.length) {
@@ -89,6 +91,8 @@ export async function runLaunchCheck({
   } else {
     log("OK AI env: все три серверные AI-переменные присутствуют.");
   }
+  if (previewOnly) warn("PREVIEW_ONLY AI: платные provider-вызовы отключены.");
+  else if (!aiEnabled) warn("AI_DISABLED: требуется явный DV9_AI_ENABLED=true после подтверждения владельца.");
 
   if (typeof fetchImpl !== "function") {
     error("CRITICAL runtime: fetch недоступен.");
@@ -122,7 +126,9 @@ export async function runLaunchCheck({
           error("CRITICAL Telegram system bot: not configured in current deployment.");
           critical.push("system-bot-not-configured");
         }
-        if (body.aiConfigured) log("OK AI: deployment configuration detected.");
+        if (body.aiRuntimeStatus === "PREVIEW_ONLY") warn("PREVIEW_ONLY AI: gateway blocks provider calls.");
+        else if (body.aiRuntimeStatus === "AI_DISABLED") warn("AI_DISABLED: gateway blocks provider calls.");
+        else if (body.aiConfigured) log("OK AI: deployment configuration detected.");
         else warn("NOT_CONFIGURED AI: gateway reports aiConfigured=false.");
       }
     } catch {

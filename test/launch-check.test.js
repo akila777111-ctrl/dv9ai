@@ -38,6 +38,7 @@ function productionFetch({ configuredBots = ["system"], aiConfigured = true } = 
         service: "dv9-telegram-gateway",
         configuredBots,
         aiConfigured,
+        aiRuntimeStatus: aiConfigured ? "AI_ENABLED" : "AI_DISABLED",
       }), { status: 200, headers: { "content-type": "application/json" } });
     }
     return new Response("ok", { status: 200 });
@@ -76,7 +77,7 @@ test("preflight fails for missing variables and an unconfigured system bot", asy
   assert.ok(result.criticalCount >= 2);
   assert.match(output, /MISSING env TELEGRAM_SYSTEM_BOT_TOKEN/);
   assert.match(output, /system bot: not configured/);
-  assert.match(output, /aiConfigured=false/);
+  assert.match(output, /AI_DISABLED/);
 });
 
 test("preflight treats partial AI configuration as critical", async () => {
@@ -89,4 +90,17 @@ test("preflight treats partial AI configuration as critical", async () => {
 
   assert.equal(result.ok, false);
   assert.match(recording.messages.join("\n"), /AI: серверные AI-переменные настроены частично/);
+});
+
+test("preflight reports preview-only AI without exposing provider values", async () => {
+  const recording = recordingLogger();
+  const result = await runLaunchCheck({
+    environment: { ...COMPLETE_ENV, VERCEL_ENV: "preview", DV9_AI_ENABLED: "true" },
+    fetchImpl: productionFetch({ aiConfigured: false }),
+    logger: recording.logger,
+  });
+
+  assert.equal(result.ok, true);
+  assert.match(recording.messages.join("\n"), /PREVIEW_ONLY AI/);
+  assert.equal(recording.messages.join("\n").includes(SECRET_AI_KEY), false);
 });

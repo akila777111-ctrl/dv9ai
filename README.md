@@ -49,6 +49,7 @@ Open Vercel Dashboard → project `dv9ai` → Settings → Environment Variables
 | `DV9_AI_BASE_URL` | server | no | optional complete AI set |
 | `DV9_AI_API_KEY` | server | yes | optional complete AI set |
 | `DV9_AI_MODEL` | server | no | optional complete AI set |
+| `DV9_AI_ENABLED` | server | no | explicit owner opt-in; never enable in Preview |
 
 Use `https://www.dv9.com.ua` for both production origins and `https://t.me/DV9_SYSTEMbot` for the public browser link. Enter values only in Vercel. Previously published Telegram tokens are compromised and must be revoked/reissued through BotFather before use.
 
@@ -72,11 +73,12 @@ Expected final gateway state:
   "ok": true,
   "service": "dv9-telegram-gateway",
   "configuredBots": ["system"],
-  "aiConfigured": false
+  "aiConfigured": false,
+  "aiRuntimeStatus": "AI_DISABLED"
 }
 ```
 
-`aiConfigured` may be true only when all three server-side AI variables are present.
+`aiConfigured` may be true only when all three server-side AI variables are present, `DV9_AI_ENABLED=true` was explicitly approved by the owner, and the deployment is not Preview. Preview always reports `PREVIEW_ONLY` and blocks provider calls.
 
 After preflight succeeds, register and verify the webhook with one command:
 
