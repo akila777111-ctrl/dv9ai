@@ -1,6 +1,6 @@
 # DV9 HYDRA — AGENT HANDOFFS
 
-Updated: 2026-08-07 10:48 +02:00
+Updated: 2026-08-07 11:47 +02:00
 
 ## H-001
 FROM: HYDRA  
@@ -40,8 +40,19 @@ OUTPUT: defensive review target
 LOCATION: `control/AGENT_TASKS.md`  
 ASSUMPTIONS: no external attack execution is needed  
 VERIFIED: review target is current merged architecture  
-NEXT ACTION: review failure modes; perform final pass after CODEX-001 verification report
+NEXT ACTION: review failure modes; perform final pass after CODEX-001 and DEEPSEEK-001 reports
+
+## H-005
+FROM: HYDRA  
+TO: DEEPSEEK  
+TASK: DEEPSEEK-001  
+OUTPUT: defensive security architecture + authorized Kali pentest plan  
+LOCATION: `control/AGENT_TASKS.md`, `control/STATUS_BOARD.md`  
+ASSUMPTIONS: repository/local/staging analysis is allowed; active testing of external/production targets requires explicit authorization  
+VERIFIED: scope and safety boundary defined by HYDRA  
+NEXT ACTION: map attack surface, build threat model and defense-in-depth plan, define non-destructive Kali lab/test matrix, then hand findings to GROK and CODEX
 
 ## Planned chain
 
-PERPLEXITY → ROBERT → CODEX → GROK → CODEX → HYDRA → INTEGRATION
+PERPLEXITY → ROBERT → CODEX  
+CODEX → DEEPSEEK → GROK → CODEX → HYDRA → INTEGRATION
