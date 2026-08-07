@@ -26,13 +26,13 @@ ID: CODEX-001
 OWNER: CODEX  
 PRIORITY: P1  
 STATUS: QUEUED  
-GOAL: Re-verify the merged PR #7 baseline on current `main`, with emphasis on CI/build health and live Telegram/Vercel production readiness.  
+GOAL: Re-verify the merged PR #7 baseline on current `main`, with emphasis on CI/build health and live Telegram/Vercel production readiness, and triage conflicting Vercel commit-status contexts.  
 FILES: read existing source/tests/runbooks first; modify only files proven necessary by failed verification  
 LOCKS: claim exact files before editing  
 DEPENDENCIES: HYDRA-BOOT-001  
-INPUT: `main@7fbcc8185098706bf0111721c434a4856ac3f7fc`, PR #7 verification claims  
-EXPECTED OUTPUT: fresh verification report; any necessary minimal fix in `agent/codex/CODEX-001`  
-VERIFICATION: lint, tests, build, smoke test, git diff review, secret scan; live `/bots` and `/site` if safely available  
+INPUT: `main@7fbcc8185098706bf0111721c434a4856ac3f7fc`; PR #7 verification claims; B-001 evidence: `Vercel – dv9ai` success while `Vercel – dv9ai-5a9w` and `Vercel – dv9ai-hal3` report failure  
+EXPECTED OUTPUT: fresh verification report; classification of the two failing Vercel contexts; any necessary minimal fix in `agent/codex/CODEX-001`  
+VERIFICATION: lint, tests, build, smoke test, git diff review, secret scan; inspect CI/check configuration; verify canonical Vercel mapping; live `/bots` and `/site` if safely available  
 HANDOFF TO: GROK, DEEPSEEK, then HYDRA  
 RISK: MEDIUM  
 CREATED: 2026-08-07 10:48 +02:00  
