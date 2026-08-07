@@ -1,8 +1,18 @@
 # DV9 HYDRA — INTEGRATION QUEUE
 
-Updated: 2026-08-07 10:48 +02:00
+Updated: 2026-08-07 10:53 +02:00
 
-No agent deliverable has passed verification yet.
+## IQ-001 — HYDRA control plane v0.2
+
+TASK: HYDRA-BOOT-001  
+BRANCH: `hydra/control-plane-v0.2`  
+PR: #9 (draft)  
+FILES: eight `control/*.md` files  
+TEST RESULT: structural compare confirms branch is ahead of `main` only by control-plane additions; no production source changes observed  
+DEPENDENCIES: baseline `main@7fbcc8185098706bf0111721c434a4856ac3f7fc`  
+CONFLICT RISK: LOW; isolated documentation/control-plane branch  
+MERGE ORDER: after control-plane review; before relying on `control/*` as canonical shared state  
+STATUS: VERIFY
 
 ## Entry format
 
