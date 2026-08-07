@@ -12,15 +12,21 @@ Dispatcher: HYDRA v0.2
 - PR #7 records prior checks: `npm test` 12/12, lint pass, build pass, secret scan clean, Telegram production webhook/commands verified at that time.
 - PR #7 records live `/start`, `/id`, `/status` confirmation at that time.
 - Hydra control plane exists on isolated branch `hydra/control-plane-v0.2`.
-- Draft PR #9 `Bootstrap DV9 HYDRA dispatcher v0.2` is OPEN and changes only `control/*.md` files.
+- Draft PR #9 `Bootstrap DV9 HYDRA dispatcher v0.2` is OPEN, DRAFT and mergeable.
+- Compare gate confirms the Hydra branch is ahead of `main` and changes only the eight `control/*.md` files; no production source files are changed.
 - DEEPSEEK added as the dedicated defensive security/Kali pentest engineering agent under HYDRA.
+- GitHub combined status for merged `main` shows canonical `Vercel – dv9ai` = success.
 
-These are baseline facts, not a substitute for fresh verification after merge.
+These are baseline facts, not a substitute for fresh end-to-end verification after merge.
+
+## PROVEN ISSUE
+
+- B-001 — the same merged commit also reports `Vercel – dv9ai-5a9w` = failure and `Vercel – dv9ai-hal3` = failure. Canonical `dv9ai` is green, but stale/alternate Vercel contexts may be polluting the overall status surface.
 
 ## UNKNOWN / MUST REVERIFY
 
-- Current GitHub Actions status for the merged main commit.
-- Current production deployment health after merge.
+- Full GitHub Actions/CI path for the merged main commit; the connector returned no PR-triggered workflow runs, which is not proof that CI is absent.
+- Current production deployment health after merge beyond the observed canonical Vercel status.
 - Current live `/bots` and `/site` behavior.
 - Current Vercel production runtime state and environment metadata.
 - Whether any parallel local/remote agent work has started since the last observed commit.
@@ -29,10 +35,11 @@ These are baseline facts, not a substitute for fresh verification after merge.
 ## ACTIVE
 
 - HYDRA-BOOT-001 — branch bootstrap complete; draft PR #9 awaits control-plane review/integration.
+- B-001 triage — CODEX must determine whether the two failing Vercel contexts are stale/duplicate or intentionally active.
 
 ## QUEUED FIRST PARALLEL WAVE
 
-- CODEX-001 — fresh post-merge production verification.
+- CODEX-001 — fresh post-merge production verification + B-001 Vercel-context triage.
 - ROBERT-001 — product/asset + revenue-path map.
 - PERPLEXITY-001 — fresh external intelligence.
 - GROK-001 — defensive red-team review.
@@ -40,7 +47,8 @@ These are baseline facts, not a substitute for fresh verification after merge.
 
 ## VERIFY
 
-- HYDRA-BOOT-001 — verify draft PR #9 contains control-plane files only and does not alter production source.
+- HYDRA-BOOT-001 — structural verification PASSED: PR #9 changes only eight `control/*.md` files.
+- Fresh production/CI verification remains pending under CODEX-001.
 
 ## INTEGRATION
 
@@ -48,7 +56,7 @@ These are baseline facts, not a substitute for fresh verification after merge.
 
 ## BLOCKED
 
-None proven yet. Unknowns are tracked separately and are not automatically blockers.
+- Full green production/CI verification is blocked on B-001 triage and the remaining CODEX-001 checks.
 
 ## AGENT STATE
 
@@ -60,4 +68,4 @@ DEEPSEEK: QUEUED — DEEPSEEK-001
 
 ## OWNER REQUIRED
 
-None at bootstrap. Owner confirmation remains mandatory for secrets, payments, legal decisions, irreversible actions, production permissions, and any active security testing outside local/staging or an explicitly authorized target.
+None yet. Owner confirmation remains mandatory for secrets, payments, legal decisions, irreversible actions, production permissions, any active security testing outside local/staging or an explicitly authorized target, and any deletion/disconnection of Vercel projects or integrations.
