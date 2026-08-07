@@ -13,8 +13,8 @@ Status: ACTIVE
 
 ## D-003 — First wave is intentionally non-overlapping
 Date: 2026-08-07  
-Decision: CODEX verifies/repairs production engineering; ROBERT writes product/revenue docs; PERPLEXITY writes external research; GROK writes a defensive review.  
-Reason: maximize parallelism without shared-file edits.  
+Decision: CODEX verifies/repairs production engineering; ROBERT writes product/revenue docs; PERPLEXITY writes external research; GROK writes an independent defensive red-team review; DEEPSEEK designs defensive security architecture and the authorized Kali pentest workflow.  
+Reason: maximize parallelism while separating production engineering, product research, external intelligence, critical review, and security engineering.  
 Status: ACTIVE
 
 ## D-004 — HYDRA owns control-plane files
@@ -25,4 +25,10 @@ Status: ACTIVE
 ## D-005 — No autonomous irreversible production or financial actions
 Date: 2026-08-07  
 Decision: deployment-destructive, secret-rotation, DNS-destructive, mainnet, liquidity, purchases, exchange submissions, or real financial actions require owner approval.  
+Status: ACTIVE
+
+## D-006 — Security testing authorization boundary
+Date: 2026-08-07  
+Decision: DEEPSEEK may autonomously perform defensive architecture analysis and design non-destructive tests for repository, local lab, and staging. Active probing of production/external targets requires explicit owner authorization and a defined scope. Credential attacks, persistence, destructive testing, evasion, secret extraction, and unauthorized third-party testing are outside autonomous execution.  
+Reason: preserve a powerful Kali/security workflow without crossing authorization or production-risk boundaries.  
 Status: ACTIVE
