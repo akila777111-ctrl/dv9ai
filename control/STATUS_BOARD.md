@@ -1,6 +1,6 @@
 # DV9 HYDRA — STATUS BOARD
 
-Updated: 2026-08-07 10:48 +02:00  
+Updated: 2026-08-07 10:53 +02:00  
 Dispatcher: HYDRA v0.2
 
 ## VERIFIED BASELINE
@@ -11,6 +11,8 @@ Dispatcher: HYDRA v0.2
 - PR #7 `Finalize DV9 Telegram production activation`: MERGED
 - PR #7 records prior checks: `npm test` 12/12, lint pass, build pass, secret scan clean, Telegram production webhook/commands verified at that time.
 - PR #7 records live `/start`, `/id`, `/status` confirmation at that time.
+- Hydra control plane exists on isolated branch `hydra/control-plane-v0.2`.
+- Draft PR #9 `Bootstrap DV9 HYDRA dispatcher v0.2` is OPEN and changes only eight `control/*.md` files.
 
 These are baseline facts, not a substitute for fresh verification after merge.
 
@@ -24,7 +26,7 @@ These are baseline facts, not a substitute for fresh verification after merge.
 
 ## ACTIVE
 
-- HYDRA-BOOT-001 — completed on isolated branch.
+- HYDRA-BOOT-001 — branch bootstrap complete; draft PR #9 awaits control-plane review/integration.
 
 ## QUEUED FIRST PARALLEL WAVE
 
@@ -35,11 +37,11 @@ These are baseline facts, not a substitute for fresh verification after merge.
 
 ## VERIFY
 
-None yet.
+- HYDRA-BOOT-001 — verify draft PR #9 contains control-plane files only and does not alter production source.
 
 ## INTEGRATION
 
-None yet.
+- Draft PR #9 — not ready to merge until the control-plane review/integration gate passes.
 
 ## BLOCKED
 
