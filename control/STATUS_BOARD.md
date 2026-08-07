@@ -1,6 +1,6 @@
 # DV9 HYDRA — STATUS BOARD
 
-Updated: 2026-08-07 10:53 +02:00  
+Updated: 2026-08-07 11:47 +02:00  
 Dispatcher: HYDRA v0.2
 
 ## VERIFIED BASELINE
@@ -12,7 +12,8 @@ Dispatcher: HYDRA v0.2
 - PR #7 records prior checks: `npm test` 12/12, lint pass, build pass, secret scan clean, Telegram production webhook/commands verified at that time.
 - PR #7 records live `/start`, `/id`, `/status` confirmation at that time.
 - Hydra control plane exists on isolated branch `hydra/control-plane-v0.2`.
-- Draft PR #9 `Bootstrap DV9 HYDRA dispatcher v0.2` is OPEN and changes only eight `control/*.md` files.
+- Draft PR #9 `Bootstrap DV9 HYDRA dispatcher v0.2` is OPEN and changes only `control/*.md` files.
+- DEEPSEEK added as the dedicated defensive security/Kali pentest engineering agent under HYDRA.
 
 These are baseline facts, not a substitute for fresh verification after merge.
 
@@ -23,6 +24,7 @@ These are baseline facts, not a substitute for fresh verification after merge.
 - Current live `/bots` and `/site` behavior.
 - Current Vercel production runtime state and environment metadata.
 - Whether any parallel local/remote agent work has started since the last observed commit.
+- Current repository attack surface and staging security posture have not yet been independently mapped by DEEPSEEK.
 
 ## ACTIVE
 
@@ -34,6 +36,7 @@ These are baseline facts, not a substitute for fresh verification after merge.
 - ROBERT-001 — product/asset + revenue-path map.
 - PERPLEXITY-001 — fresh external intelligence.
 - GROK-001 — defensive red-team review.
+- DEEPSEEK-001 — defensive security architecture + authorized Kali pentest workflow.
 
 ## VERIFY
 
@@ -52,8 +55,9 @@ None proven yet. Unknowns are tracked separately and are not automatically block
 CODEX: QUEUED — CODEX-001  
 ROBERT: QUEUED — ROBERT-001  
 PERPLEXITY: QUEUED — PERPLEXITY-001  
-GROK: QUEUED — GROK-001
+GROK: QUEUED — GROK-001  
+DEEPSEEK: QUEUED — DEEPSEEK-001
 
 ## OWNER REQUIRED
 
-None at bootstrap. Owner confirmation remains mandatory for irreversible production/financial actions defined by the Hydra safety policy.
+None at bootstrap. Owner confirmation remains mandatory for secrets, payments, legal decisions, irreversible actions, production permissions, and any active security testing outside local/staging or an explicitly authorized target.
