@@ -12,6 +12,9 @@ const ENV_NAMES = [
   "DV9_AI_API_KEY",
   "DV9_AI_MODEL",
   "DV9_AI_ENABLED",
+  "DV9_CONTAINMENT_MODE",
+  "DV9_CONTAINMENT_KILL_SWITCH",
+  "DV9_AI_EGRESS_ALLOWLIST",
   "VERCEL_ENV",
   "DV9_SITE_URL",
 ];
@@ -89,6 +92,7 @@ test("GET exposes only the safe diagnostic contract", async () => {
         "aiConfigured",
         "aiRuntimeStatus",
         "configuredBots",
+        "containment",
         "deploymentMode",
         "ok",
         "service",
@@ -97,6 +101,11 @@ test("GET exposes only the safe diagnostic contract", async () => {
       assert.deepEqual(body.configuredBots, ["system"]);
       assert.equal(body.aiConfigured, false);
       assert.equal(body.aiRuntimeStatus, "AI_DISABLED");
+      assert.deepEqual(body.containment, {
+        mode: "ENFORCE",
+        killSwitch: false,
+        egressPolicy: "HTTPS_ALLOWLIST_ONLY",
+      });
       assert.equal(body.deploymentMode, "STANDARD");
       assert.equal(Number.isNaN(Date.parse(body.timestamp)), false);
       assert.equal(JSON.stringify(body).includes(BOT_TOKEN), false);
@@ -186,7 +195,6 @@ test("all six commands work for the owner and AI remains owner-only", async () =
     },
   );
 });
-
 
 test("preview keeps AI disabled even when provider credentials are present", async () => {
   await withEnvironment(
