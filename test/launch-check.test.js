@@ -30,7 +30,11 @@ function recordingLogger() {
   };
 }
 
-function productionFetch({ configuredBots = ["system"], aiConfigured = true } = {}) {
+function productionFetch({
+  configuredBots = ["system"],
+  aiConfigured = true,
+  aiRuntimeStatus = aiConfigured ? "AI_ENABLED" : "AI_DISABLED",
+} = {}) {
   return async (url) => {
     if (new URL(url).pathname === "/api/telegram") {
       return new Response(JSON.stringify({
@@ -38,7 +42,7 @@ function productionFetch({ configuredBots = ["system"], aiConfigured = true } = 
         service: "dv9-telegram-gateway",
         configuredBots,
         aiConfigured,
-        aiRuntimeStatus: aiConfigured ? "AI_ENABLED" : "AI_DISABLED",
+        aiRuntimeStatus,
       }), { status: 200, headers: { "content-type": "application/json" } });
     }
     return new Response("ok", { status: 200 });
@@ -103,4 +107,22 @@ test("preflight reports preview-only AI without exposing provider values", async
   assert.equal(result.ok, true);
   assert.match(recording.messages.join("\n"), /PREVIEW_ONLY AI/);
   assert.equal(recording.messages.join("\n").includes(SECRET_AI_KEY), false);
+});
+
+test("preflight fails when containment blocks an enabled AI runtime", async () => {
+  const recording = recordingLogger();
+  const result = await runLaunchCheck({
+    environment: { ...COMPLETE_ENV, DV9_AI_ENABLED: "true" },
+    fetchImpl: productionFetch({
+      aiConfigured: false,
+      aiRuntimeStatus: "AI_BLOCKED_BY_CONTAINMENT",
+    }),
+    logger: recording.logger,
+  });
+  const output = recording.messages.join("\n");
+
+  assert.equal(result.ok, false);
+  assert.match(output, /CRITICAL AI_BLOCKED_BY_CONTAINMENT/);
+  assert.match(output, /FAIL DV9 launch preflight/);
+  assert.equal(output.includes(SECRET_AI_KEY), false);
 });

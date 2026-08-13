@@ -32,6 +32,16 @@ test("kill switch blocks all egress", () => {
   });
 });
 
+test("kill switch also blocks egress when containment mode is OFF", () => {
+  assert.deepEqual(
+    egressDecision(
+      "https://api.openai.com/v1/chat/completions",
+      env({ DV9_CONTAINMENT_MODE: "OFF", DV9_CONTAINMENT_KILL_SWITCH: "true" }),
+    ),
+    { allowed: false, reason: "kill-switch", mode: "OFF" },
+  );
+});
+
 test("ENFORCE allows only explicitly allowlisted HTTPS hosts", () => {
   assert.equal(
     egressDecision("https://api.openai.com/v1/chat/completions", env()).allowed,
@@ -62,6 +72,30 @@ test("HTTP and local/private destinations are blocked", () => {
     ).reason,
     "local-or-private-egress-forbidden",
   );
+});
+
+test("IPv6 local, link-local, unique-local and mapped private destinations are blocked", () => {
+  const destinations = [
+    "https://[::]/v1/chat/completions",
+    "https://[::1]/v1/chat/completions",
+    "https://[fe80::1]/v1/chat/completions",
+    "https://[febf::1]/v1/chat/completions",
+    "https://[fc00::1]/v1/chat/completions",
+    "https://[fdff::1]/v1/chat/completions",
+    "https://[::ffff:127.0.0.1]/v1/chat/completions",
+    "https://[::ffff:10.0.0.1]/v1/chat/completions",
+    "https://[::ffff:169.254.1.1]/v1/chat/completions",
+    "https://[::ffff:172.16.0.1]/v1/chat/completions",
+    "https://[::ffff:192.168.1.1]/v1/chat/completions",
+  ];
+
+  for (const destination of destinations) {
+    assert.equal(
+      egressDecision(destination, env({ DV9_CONTAINMENT_MODE: "AUDIT" })).reason,
+      "local-or-private-egress-forbidden",
+      destination,
+    );
+  }
 });
 
 test("AUDIT permits unlisted public HTTPS while preserving guardrails", () => {

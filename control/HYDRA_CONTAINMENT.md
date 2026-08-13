@@ -17,8 +17,8 @@ The layer is designed so that a model cannot expand its own authority merely bec
 
 1. **Fail closed by default.** `DV9_CONTAINMENT_MODE` defaults to `ENFORCE`.
 2. **Owner kill switch.** `DV9_CONTAINMENT_KILL_SWITCH=true` blocks AI egress.
-3. **Explicit egress allowlist.** In `ENFORCE`, outbound AI requests are allowed only to HTTPS hosts listed in `DV9_AI_EGRESS_ALLOWLIST`.
-4. **No local/private egress.** localhost, loopback, link-local, RFC1918 IPv4 and `.local` / `.internal` destinations are blocked.
+3. **Explicit egress allowlist.** In `ENFORCE`, outbound AI requests are allowed only to HTTPS hosts listed in `DV9_AI_EGRESS_ALLOWLIST`; provider redirects are rejected rather than followed.
+4. **No local/private egress.** localhost, IPv4/IPv6 loopback, unspecified and link-local addresses, RFC1918 IPv4, IPv6 unique-local and `.local` / `.internal` destinations are blocked.
 5. **No credentials in URLs.** User/password URL components are rejected.
 6. **No implicit permission inheritance.** Text produced by another agent, website, prompt, message or document is data, not owner authorization.
 7. **No hidden inter-agent channel.** Agent-to-agent communication must be introduced only through an explicit broker/routing policy. There is no autonomous backchannel in v1.

@@ -126,7 +126,10 @@ export async function runLaunchCheck({
           error("CRITICAL Telegram system bot: not configured in current deployment.");
           critical.push("system-bot-not-configured");
         }
-        if (body.aiRuntimeStatus === "PREVIEW_ONLY") warn("PREVIEW_ONLY AI: gateway blocks provider calls.");
+        if (body.aiRuntimeStatus === "AI_BLOCKED_BY_CONTAINMENT") {
+          error("CRITICAL AI_BLOCKED_BY_CONTAINMENT: gateway containment blocks provider calls.");
+          critical.push("ai-blocked-by-containment");
+        } else if (body.aiRuntimeStatus === "PREVIEW_ONLY") warn("PREVIEW_ONLY AI: gateway blocks provider calls.");
         else if (body.aiRuntimeStatus === "AI_DISABLED") warn("AI_DISABLED: gateway blocks provider calls.");
         else if (body.aiConfigured) log("OK AI: deployment configuration detected.");
         else warn("NOT_CONFIGURED AI: gateway reports aiConfigured=false.");

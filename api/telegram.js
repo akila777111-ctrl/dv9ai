@@ -204,12 +204,21 @@ function aiConfigured() {
   return Boolean(config.baseUrl && config.apiKey && config.model);
 }
 
+function aiEndpoint(config) {
+  return config.baseUrl.endsWith("/chat/completions")
+    ? config.baseUrl
+    : `${config.baseUrl}/chat/completions`;
+}
+
 function aiRuntimeStatus() {
   const containment = containmentRuntimeStatus();
-  if (containment.killSwitch) return "AI_CONTAINED";
+  if (containment.killSwitch) return "AI_BLOCKED_BY_CONTAINMENT";
   if (env("VERCEL_ENV").toLowerCase() === "preview") return "PREVIEW_ONLY";
   if (env("DV9_AI_ENABLED").toLowerCase() !== "true") return "AI_DISABLED";
-  return aiConfigured() ? "AI_ENABLED" : "AI_DISABLED";
+  if (!aiConfigured()) return "AI_DISABLED";
+
+  const gate = egressDecision(aiEndpoint(aiConfig()));
+  return gate.allowed ? "AI_ENABLED" : "AI_BLOCKED_BY_CONTAINMENT";
 }
 
 async function askAi(bot, userText) {
@@ -226,9 +235,7 @@ async function askAi(bot, userText) {
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
   try {
-    const endpoint = config.baseUrl.endsWith("/chat/completions")
-      ? config.baseUrl
-      : `${config.baseUrl}/chat/completions`;
+    const endpoint = aiEndpoint(config);
 
     const gate = egressDecision(endpoint);
     if (!gate.allowed) {
@@ -257,6 +264,7 @@ async function askAi(bot, userText) {
         stream: false,
       }),
       signal: controller.signal,
+      redirect: "error",
     });
 
     const body = await response.json().catch(() => null);

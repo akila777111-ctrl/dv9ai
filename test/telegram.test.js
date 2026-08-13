@@ -114,6 +114,52 @@ test("GET exposes only the safe diagnostic contract", async () => {
   );
 });
 
+test("GET reports configured AI as blocked when containment denies its endpoint", async () => {
+  await withEnvironment(
+    {
+      TELEGRAM_SYSTEM_BOT_TOKEN: BOT_TOKEN,
+      TELEGRAM_SYSTEM_WEBHOOK_SECRET: WEBHOOK_SECRET,
+      TELEGRAM_OWNER_IDS: "42",
+      DV9_AI_BASE_URL: "https://ai.example.invalid/v1",
+      DV9_AI_API_KEY: "test-provider-key",
+      DV9_AI_MODEL: "test-model",
+      DV9_AI_ENABLED: "true",
+      DV9_CONTAINMENT_MODE: "ENFORCE",
+      DV9_CONTAINMENT_KILL_SWITCH: "false",
+      DV9_AI_EGRESS_ALLOWLIST: "api.openai.com",
+    },
+    async () => {
+      const originalFetch = globalThis.fetch;
+      const calls = [];
+      globalThis.fetch = async (url, options) => {
+        calls.push({ url: new URL(url), options });
+        return telegramApiResponse(true);
+      };
+
+      try {
+        const response = await telegramHandler.fetch(
+          new Request("https://www.dv9.com.ua/api/telegram"),
+        );
+        const body = await response.json();
+
+        assert.equal(body.aiConfigured, false);
+        assert.equal(body.aiRuntimeStatus, "AI_BLOCKED_BY_CONTAINMENT");
+        assert.equal(body.containment.egressPolicy, "HTTPS_ALLOWLIST_ONLY");
+
+        await telegramHandler.fetch(updateRequest("Проверь систему", 42));
+        assert.equal(calls.some((call) => call.url.hostname === "ai.example.invalid"), false);
+        assert.deepEqual(
+          calls.map((call) => call.url.pathname.split("/").at(-1)),
+          ["sendChatAction", "sendMessage"],
+        );
+        assert.match(JSON.parse(calls.at(-1).options.body).text, /AI_BLOCKED_BY_CONTAINMENT/);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    },
+  );
+});
+
 test("webhook rejects a wrong secret but acknowledges bootstrap restrictions", async () => {
   await withEnvironment(
     {
@@ -227,6 +273,66 @@ test("preview keeps AI disabled even when provider credentials are present", asy
         assert.match(recorder.calls.at(-1).body.text, /PREVIEW_ONLY/);
       } finally {
         globalThis.fetch = originalFetch;
+      }
+    },
+  );
+});
+
+test("AI provider requests reject redirects without fetching their destination", async () => {
+  await withEnvironment(
+    {
+      TELEGRAM_SYSTEM_BOT_TOKEN: BOT_TOKEN,
+      TELEGRAM_SYSTEM_WEBHOOK_SECRET: WEBHOOK_SECRET,
+      TELEGRAM_OWNER_IDS: "42",
+      DV9_AI_BASE_URL: "https://ai.example.invalid/v1",
+      DV9_AI_API_KEY: "test-provider-key",
+      DV9_AI_MODEL: "test-model",
+      DV9_AI_ENABLED: "true",
+      DV9_CONTAINMENT_MODE: "ENFORCE",
+      DV9_CONTAINMENT_KILL_SWITCH: "false",
+      DV9_AI_EGRESS_ALLOWLIST: "ai.example.invalid",
+    },
+    async () => {
+      const originalFetch = globalThis.fetch;
+      const originalConsoleError = console.error;
+      const redirectTarget = new URL("https://127.0.0.1/private-metadata");
+      const calls = [];
+      globalThis.fetch = async (url, options) => {
+        const target = new URL(url);
+        calls.push({ target, options });
+        if (target.hostname === "ai.example.invalid") {
+          if (options.redirect === "error") {
+            throw new TypeError(`redirect to ${redirectTarget.href} rejected`);
+          }
+          calls.push({ target: redirectTarget, options });
+          return new Response(
+            JSON.stringify({ choices: [{ message: { content: "redirect followed" } }] }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          );
+        }
+        return telegramApiResponse(true);
+      };
+      console.error = () => {};
+
+      try {
+        const response = await telegramHandler.fetch(updateRequest("Проверь систему", 42));
+        const providerCalls = calls.filter((call) => call.target.hostname === "ai.example.invalid");
+        const redirectCalls = calls.filter((call) => call.target.href === redirectTarget.href);
+
+        assert.equal(response.status, 200);
+        assert.equal(providerCalls.length, 1);
+        assert.equal(providerCalls[0].target.pathname, "/v1/chat/completions");
+        assert.equal(providerCalls[0].options.redirect, "error");
+        assert.equal(redirectCalls.length, 0);
+        assert.deepEqual(
+          calls
+            .filter((call) => call.target.hostname === "api.telegram.org")
+            .map((call) => call.target.pathname.split("/").at(-1)),
+          ["sendChatAction", "sendMessage"],
+        );
+      } finally {
+        globalThis.fetch = originalFetch;
+        console.error = originalConsoleError;
       }
     },
   );
