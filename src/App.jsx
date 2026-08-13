@@ -18,12 +18,11 @@ export default function App() {
         </a>
       </nav>
 
-      <section className="hero">
-        <p className="badge">DV9 AI ECOSYSTEM • 2035</p>
-        <h1>AI-пилот для стройки, бизнеса и цифровой защиты</h1>
+      <section className="hero" id="top">
+        <p className="badge">DV9 // HYDRA · ENGINEERING INTELLIGENCE</p>
+        <h1>Командный центр новой реальности.</h1>
         <p className="lead">
-          DV9 объединяет искусственный интеллект, строительный контроль,
-          автоматизацию, безопасность и сеть AI-агентов в одну экосистему.
+          Единый AI-контур для стройки, бизнеса и цифровой защиты. Видит систему целиком, реагирует на сигналы и ускоряет решения.
         </p>
 
         <div className="buttons">
@@ -34,12 +33,13 @@ export default function App() {
           >
             Запустить в Telegram
           </a>
-          <a className="ghost" href="#modules">Смотреть модули</a>
+          <a className="ghost" href="#modules">Исследовать систему</a>
         </div>
       </section>
 
       <GatewayStatus />
 
+      <section className="sectionIntro"><p className="badge">SYSTEM // ARCHITECTURE</p><h2>Одна система. Пять контуров.</h2><p>Связанный инженерный контур управления DV9 HYDRA.</p></section>
       <section id="modules" className="cards">
         <div className="card">
           <h2>AI Brain</h2>
@@ -64,7 +64,7 @@ export default function App() {
       </section>
 
       <section id="contact" className="cta">
-        <h2>Сеть ботов DV9 готовится к запуску</h2>
+        <h2>Система ждёт вашу команду.</h2>
         <p>
           Сайт, Telegram и AI-ядро соединяются через защищённый backend. После
           добавления токенов бот отвечает на команды, показывает статус и передаёт запросы AI-модели.
@@ -75,7 +75,7 @@ export default function App() {
           target={telegramIsConfigured ? "_blank" : undefined}
           rel={telegramIsConfigured ? "noreferrer" : undefined}
         >
-          Войти в DV9
+          Войти в DV9 HYDRA
         </a>
       </section>
     </main>
