@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dv9.com.ua/schemas/hydronik-descendant.schema.json",
+  "title": "HYDRONIK Descendant Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "candidateId",
+    "parentHash",
+    "candidateHash",
+    "baselineScore",
+    "nullControlScore",
+    "candidateScore",
+    "testsPassed",
+    "regressions",
+    "evidenceHash",
+    "verifierId"
+  ],
+  "properties": {
+    "candidateId": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "parentHash": { "type": "string", "pattern": "^[A-Fa-f0-9]{64}$" },
+    "candidateHash": { "type": "string", "pattern": "^[A-Fa-f0-9]{64}$" },
+    "baselineScore": { "type": "number" },
+    "nullControlScore": { "type": "number" },
+    "candidateScore": { "type": "number" },
+    "testsPassed": { "type": "integer", "minimum": 0 },
+    "regressions": { "type": "integer", "minimum": 0 },
+    "evidenceHash": { "type": "string", "pattern": "^[A-Fa-f0-9]{64}$" },
+    "verifierId": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "minImprovement": { "type": "number" },
+    "resourceDelta": { "type": "number" },
+    "securityDelta": { "type": "number" },
+    "timestamp": { "type": "string", "format": "date-time" }
+  }
+}
