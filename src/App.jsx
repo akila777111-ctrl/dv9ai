@@ -2,6 +2,7 @@ import "./App.css";
 import GatewayStatus from "./components/GatewayStatus";
 import HydronikStatus from "./components/HydronikStatus";
 import DescendantArena from "./components/DescendantArena";
+import SkillCapsuleRegistry from "./components/SkillCapsuleRegistry";
 
 const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL || "#contact";
 const telegramIsConfigured = telegramBotUrl.startsWith("https://t.me/");
@@ -43,6 +44,7 @@ export default function App() {
       <GatewayStatus />
       <HydronikStatus />
       <DescendantArena />
+      <SkillCapsuleRegistry />
 
       <section id="modules" className="cards">
         <div className="card">
