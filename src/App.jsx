@@ -1,5 +1,6 @@
 import "./App.css";
 import GatewayStatus from "./components/GatewayStatus";
+import HydronikStatus from "./components/HydronikStatus";
 
 const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL || "#contact";
 const telegramIsConfigured = telegramBotUrl.startsWith("https://t.me/");
@@ -39,6 +40,7 @@ export default function App() {
       </section>
 
       <GatewayStatus />
+      <HydronikStatus />
 
       <section id="modules" className="cards">
         <div className="card">
