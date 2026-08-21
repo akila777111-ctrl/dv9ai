@@ -49,6 +49,20 @@ test('tampering nested payload is detected by record hash', async () => {
   assert.equal(check.reason, 'record_hash_mismatch')
 })
 
+test('append refuses to extend a corrupt chain', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'dv9-hydronik-'))
+  const path = join(dir, 'evidence.jsonl')
+  await appendEvidence(path, { type: 'MEASUREMENT', candidateId: 'cand-corrupt', payload: measurement(), timestamp: '2026-08-21T20:00:00.000Z' })
+  const raw = await readFile(path, 'utf8')
+  const row = JSON.parse(raw.trim())
+  row.payload.testsPassed = 999
+  await writeFile(path, `${JSON.stringify(row)}\n`, 'utf8')
+  await assert.rejects(
+    appendEvidence(path, { type: 'CLAIM', candidateId: 'cand-corrupt', payload: { status: 'VERIFIED' } }),
+    /evidence_chain_corrupt:record_hash_mismatch/,
+  )
+})
+
 test('replay rejects a false VERIFIED claim', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'dv9-hydronik-'))
   const path = join(dir, 'evidence.jsonl')
