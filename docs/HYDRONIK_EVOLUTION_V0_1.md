@@ -65,6 +65,7 @@ A stored VERIFIED claim therefore cannot be trusted merely because it exists.
 
 - valid hash chain and deterministic replay;
 - nested evidence tampering detection;
+- refusal to append onto a corrupt chain;
 - false VERIFIED claim detection.
 
 ## Skill Capsule Registry
