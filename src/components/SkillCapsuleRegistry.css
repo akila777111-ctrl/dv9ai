@@ -1,0 +1,97 @@
+.skillRegistry {
+  margin: 0 8% 40px;
+  padding: 28px 30px;
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  background: rgba(15, 23, 42, 0.88);
+}
+
+.skillRegistryHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+}
+
+.skillRegistry h2 {
+  margin: 4px 0 10px;
+}
+
+.skillRegistry p {
+  color: #e2e8f0;
+  line-height: 1.55;
+}
+
+.skillMetrics {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.skillMetrics > div,
+.skillEmpty,
+.skillCard {
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(2, 6, 23, 0.55);
+}
+
+.skillMetrics span {
+  display: block;
+  color: #c4b5fd;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.skillMetrics strong {
+  display: block;
+  margin-top: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.skillEmpty {
+  margin-top: 16px;
+}
+
+.skillEmpty strong {
+  color: #fbbf24;
+}
+
+.skillList {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.skillCard h3 {
+  margin-top: 0;
+  color: #c4b5fd;
+}
+
+.skillRules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.skillRules code {
+  padding: 7px 9px;
+  border: 1px solid rgba(196, 181, 253, 0.4);
+  color: #ddd6fe;
+  background: rgba(76, 29, 149, 0.2);
+}
+
+@media (max-width: 700px) {
+  .skillRegistry {
+    margin: 0 5% 30px;
+    padding: 24px;
+  }
+
+  .skillRegistryHeader {
+    grid-template-columns: 1fr;
+  }
+}
