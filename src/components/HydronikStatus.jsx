@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./HydronikStatus.css";
 
 const INITIAL = {
   phase: "loading",
