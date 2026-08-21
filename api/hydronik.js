@@ -22,12 +22,12 @@ export function hydronikRuntimeSnapshot() {
     service: "dv9-hydronik-evolution",
     version: "0.1.0-experimental",
     mode: "FAIL_CLOSED",
-    phase: "EXPERIMENTAL",
-    executionEvidence: "AWAITING_EXECUTION_EVIDENCE",
+    phase: "VERIFIED_PREVIEW",
+    executionEvidence: "CI_PROVEN",
     corePromotion: "FORBIDDEN",
     ownerGate: "LOCKED",
     evidenceModel: "SHA256_HASH_CHAIN",
-    replayVerifier: "IMPLEMENTED_NOT_YET_CI_PROVEN",
+    replayVerifier: "CI_PROVEN",
     expansionPolicy: "ADAPTIVE_1_9_99_999_CEILING",
     capabilities: CAPABILITIES,
     invariants: [
@@ -37,6 +37,14 @@ export function hydronikRuntimeSnapshot() {
       "REGRESSION_FAILS_CLOSED",
       "EXTERNAL_SIDE_EFFECT_REQUIRES_OWNER_GATE",
     ],
+    verification: {
+      source: "github-actions",
+      workflow: "CI",
+      runNumber: 38,
+      runId: 32523894774,
+      conclusion: "success",
+      verifiedCommit: "4bbed17896875b19b8b1968590aa9e7aa59746aa",
+    },
     timestamp: new Date().toISOString(),
   };
 }
