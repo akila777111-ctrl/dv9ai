@@ -2,11 +2,30 @@ import { createHash } from 'node:crypto'
 import { appendFile, readFile } from 'node:fs/promises'
 
 const sha256 = (value) => createHash('sha256').update(value).digest('hex')
-const canonical = (value) => JSON.stringify(value, Object.keys(value).sort())
+
+function stableValue(value) {
+  if (Array.isArray(value)) return value.map(stableValue)
+  if (value && typeof value === 'object') {
+    return Object.keys(value)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = stableValue(value[key])
+        return acc
+      }, {})
+  }
+  return value
+}
+
+const canonical = (value) => JSON.stringify(stableValue(value))
 
 export async function appendEvidence(path, event) {
   if (!event || typeof event !== 'object') throw new Error('invalid_evidence_event')
+  if (!event.type || !event.candidateId) throw new Error('missing_evidence_identity')
+
   const previous = await readEvidence(path)
+  const chain = verifyEvidenceChain(previous)
+  if (!chain.ok) throw new Error(`evidence_chain_corrupt:${chain.reason}`)
+
   const prevHash = previous.length ? previous.at(-1).recordHash : '0'.repeat(64)
   const body = {
     sequence: previous.length + 1,
