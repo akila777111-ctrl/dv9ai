@@ -1,6 +1,6 @@
 # HYDRONIK Evolution v0.1
 
-Status: EXPERIMENTAL / FAIL-CLOSED
+Status: IMPLEMENTED / AWAITING EXECUTION EVIDENCE
 
 ## Non-negotiable rules
 
@@ -13,7 +13,7 @@ Status: EXPERIMENTAL / FAIL-CLOSED
 
 ## Evolution loop
 
-EXPAND -> COMPETE -> VERIFY -> SYNTHESIZE -> COMPRESS -> OWNER GATE -> EVOLVE
+EXPAND -> COMPETE -> MEASURE -> REPLAY -> VERIFY -> SYNTHESIZE -> COMPRESS -> OWNER GATE -> EVOLVE
 
 Expansion is adaptive. `1 -> 9 -> 99 -> 999` is a capacity ceiling, not a mandatory fan-out.
 
@@ -21,32 +21,11 @@ Expansion is adaptive. `1 -> 9 -> 99 -> 999` is a capacity ceiling, not a mandat
 
 Each candidate must be isolated from siblings and evaluated against the same task contract, resource budget and evaluator.
 
-Required descendant record:
-
-```json
-{
-  "candidateId": "string",
-  "parentHash": "sha256",
-  "candidateHash": "sha256",
-  "capability": "string",
-  "hypothesis": "string",
-  "changedComponents": [],
-  "baselineScore": 0,
-  "nullControlScore": 0,
-  "candidateScore": 0,
-  "testsPassed": 0,
-  "regressions": 0,
-  "resourceDelta": {},
-  "securityDelta": {},
-  "evidenceHash": "sha256",
-  "verifierId": "string",
-  "status": "REJECTED|EXPERIMENTAL|VERIFIED|OWNER_APPROVED"
-}
-```
+The machine-readable descendant contract is now defined in `schemas/hydronik-descendant.schema.json`.
 
 ## Measured Improvement Gate
 
-A candidate can become VERIFIED only if all conditions are true:
+`scripts/hydronik-measured-gate.mjs` allows VERIFIED only when:
 
 - complete evidence exists;
 - finite baseline/null/candidate scores exist;
@@ -58,28 +37,47 @@ A candidate can become VERIFIED only if all conditions are true:
 
 VERIFIED is not equal to merged, deployed or adopted. It means only that the measured gate accepted the evidence.
 
+## Append-only Evidence Store
+
+`scripts/hydronik-evidence-store.mjs` stores JSONL records as a SHA-256 hash chain.
+
+Every record carries sequence, timestamp, type, candidate identity, payload, previous hash and record hash. Nested payloads are recursively canonicalized before hashing. Appending refuses to continue if the existing chain is corrupt.
+
+This makes evidence tamper-evident, not magically tamper-proof. Durable immutability still requires later filesystem/object-lock policy or signed external checkpoints.
+
+## Independent Replay Verifier
+
+`scripts/hydronik-replay-verifier.mjs`:
+
+1. validates the complete evidence chain;
+2. selects one candidate;
+3. requires exactly one MEASUREMENT record in v0.1;
+4. re-runs the measured gate from recorded inputs;
+5. rejects a stored CLAIM whose status disagrees with replay.
+
+A stored VERIFIED claim therefore cannot be trusted merely because it exists.
+
+## Tests
+
+`test/hydronik-measured-gate.test.mjs` covers promotion and Owner Gate rules.
+
+`test/hydronik-evidence-store.test.mjs` covers:
+
+- valid hash chain and deterministic replay;
+- nested evidence tampering detection;
+- false VERIFIED claim detection.
+
 ## Skill Capsule Registry
 
 Only a compact verified capability may be proposed for reuse. Do not persist a whole descendant trajectory as a trusted skill.
 
-A skill capsule must contain:
+A future skill capsule must include problem pattern, principle/capability, constraints, failure cases, evidence references, source lineage, verifier identity, confidence/version and status.
 
-- `skillId`
-- `problemPattern`
-- `principle`
-- `constraints`
-- `failureCases`
-- `evidenceHash`
-- `sourceCandidateHash`
-- `verifierId`
-- `confidence`
-- `status`
-
-Allowed statuses: `SHADOW`, `VERIFIED`, `OWNER_APPROVED`, `RETIRED`.
-
-Promotion path:
+Promotion path remains:
 
 `candidate -> shadow skill -> independent replay -> verified skill -> owner approval -> reusable registry`
+
+No capsule promotion is implemented in v0.1.
 
 ## Owner Gate
 
@@ -87,10 +85,16 @@ The gate is a separate state transition. A VERIFIED candidate remains non-author
 
 Owner approval in v0.1 does not permit automatic merge/deploy; it only marks the artifact eligible for a later integration decision.
 
-## Next implementation target
+## Verification status
 
-1. Add JSON Schema for descendant and skill capsule records.
-2. Add append-only local evidence store.
-3. Add independent replay verifier.
-4. Add resource/security deltas to the measured gate.
-5. Add CI execution after review; no automatic merge or deploy.
+Code and tests are present in the branch, but GitHub Actions has not yet supplied execution evidence for the current branch. Therefore the correct status is not PASS.
+
+Current status: IMPLEMENTED / AWAITING EXECUTION EVIDENCE.
+
+## Next safe layer
+
+1. Wire offline JSON Schema instance validation.
+2. Add semantic graph/reference/resource-bound validation.
+3. Move evidence behind immutable/object-lock capable storage or signed checkpointing.
+4. Add deterministic resource measurements and replay fixtures.
+5. Build Skill Capsule Registry only after the arena itself is verified.
