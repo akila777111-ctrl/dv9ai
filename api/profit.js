@@ -1,6 +1,7 @@
 const COINBASE_BASE = "https://api.coinbase.com/v2/prices";
 const OWNER_APPROVED_PAY_TO = "0x64DF28C1bDB59071429fa5E22228d2a2D0Fc145f";
 const BASE_CHAIN_ID = 8453;
+const BASE_SEPOLIA_CHAIN_ID = 84532;
 
 async function fetchSpot(pair) {
   const response = await fetch(`${COINBASE_BASE}/${pair}/spot`, {
@@ -32,6 +33,9 @@ export default async function handler(_req, res) {
 
     const payTo = process.env.PROFIT_PAY_TO || OWNER_APPROVED_PAY_TO;
     const payToConfigured = /^0x[a-fA-F0-9]{40}$/.test(payTo);
+    const cdpMainnetConfigured = Boolean(
+      process.env.CDP_API_KEY_ID && process.env.CDP_API_KEY_SECRET,
+    );
 
     return res.status(200).json({
       ok: true,
@@ -52,15 +56,31 @@ export default async function handler(_req, res) {
       },
       revenueRails: [
         {
-          id: "x402",
-          name: "x402 paid API",
-          status: payToConfigured ? "PAY_TO_BOUND" : "WAITING_PAY_TO",
+          id: "x402-testnet",
+          name: "x402 paid API — Base Sepolia",
+          status: payToConfigured ? "ACTIVE_TESTNET" : "WAITING_PAY_TO",
           payToConfigured,
           payToAddress: payToConfigured ? payTo : null,
-          network: "base",
+          endpoint: "/api/x402-insight",
+          network: "eip155:84532",
+          chainId: BASE_SEPOLIA_CHAIN_ID,
+          preferredAsset: "USDC",
+          priceUsd: 0.001,
+          facilitator: "x402.org testnet",
+          realRevenue: false,
+        },
+        {
+          id: "x402-mainnet",
+          name: "x402 paid API — Base Mainnet",
+          status: cdpMainnetConfigured ? "READY_FOR_OWNER_TEST" : "LOCKED_CDP_AUTH_REQUIRED",
+          payToConfigured,
+          payToAddress: payToConfigured ? payTo : null,
+          network: "eip155:8453",
           chainId: BASE_CHAIN_ID,
           preferredAsset: "USDC",
           signingEnabled: false,
+          realRevenue: true,
+          liveSettlementEnabled: false,
         },
         {
           id: "agent-wallet",
