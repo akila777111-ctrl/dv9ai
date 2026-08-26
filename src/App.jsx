@@ -1,5 +1,6 @@
 import "./App.css";
 import GatewayStatus from "./components/GatewayStatus";
+import ProfitEngine from "./components/ProfitEngine";
 
 const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL || "#contact";
 const telegramIsConfigured = telegramBotUrl.startsWith("https://t.me/");
@@ -34,11 +35,13 @@ export default function App() {
           >
             Запустить в Telegram
           </a>
+          <a className="ghost" href="#profit-engine">Profit Engine</a>
           <a className="ghost" href="#modules">Смотреть модули</a>
         </div>
       </section>
 
       <GatewayStatus />
+      <ProfitEngine />
 
       <section id="modules" className="cards">
         <div className="card">
