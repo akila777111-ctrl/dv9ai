@@ -115,7 +115,8 @@ export default function ProfitEngine() {
     setPaper(next);
   }
 
-  const x402 = feed?.revenueRails?.find((rail) => rail.id === "x402");
+  const x402Testnet = feed?.revenueRails?.find((rail) => rail.id === "x402-testnet");
+  const x402Mainnet = feed?.revenueRails?.find((rail) => rail.id === "x402-mainnet");
 
   return (
     <section className="profitEngine" id="profit-engine">
@@ -136,7 +137,7 @@ export default function ProfitEngine() {
         <article className="profitMetric">
           <span>REALIZED REVENUE</span>
           <strong>{formatMoney(0)}</strong>
-          <small>Реальные подтверждённые поступления</small>
+          <small>Только подтверждённые mainnet settlement receipts</small>
         </article>
 
         <article className="profitMetric">
@@ -150,18 +151,22 @@ export default function ProfitEngine() {
         </article>
 
         <article className="profitMetric">
-          <span>PAPER CAPITAL</span>
-          <strong>{formatMoney(metrics.currentEur)}</strong>
-          <small>50% BTC / 50% ETH, leverage 0</small>
+          <span>x402 TESTNET</span>
+          <strong>{x402Testnet?.status || "CHECKING"}</strong>
+          <small>
+            {x402Testnet?.payToConfigured
+              ? `$0.001 • Base Sepolia • ${x402Testnet.endpoint}`
+              : "Нужен pay-to адрес"}
+          </small>
         </article>
 
         <article className="profitMetric">
-          <span>x402 REVENUE RAIL</span>
-          <strong>{x402?.status || "CHECKING"}</strong>
+          <span>x402 MAINNET</span>
+          <strong>{x402Mainnet?.status || "CHECKING"}</strong>
           <small>
-            {x402?.payToConfigured
-              ? "Платёжный адрес настроен"
-              : "Нужен отдельный pay-to адрес"}
+            {x402Mainnet?.status === "READY_FOR_OWNER_TEST"
+              ? "Base mainnet готов к малому owner-test"
+              : "Нужна production-аутентификация facilitator"}
           </small>
         </article>
       </div>
