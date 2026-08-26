@@ -1,5 +1,6 @@
 const COINBASE_BASE = "https://api.coinbase.com/v2/prices";
 const OWNER_APPROVED_PAY_TO = "0x64DF28C1bDB59071429fa5E22228d2a2D0Fc145f";
+const PUBLIC_PROFIT_GATEWAY = "https://dv9-profit-gateway-yxot8g.v2.appdeploy.ai";
 const BASE_CHAIN_ID = 8453;
 const BASE_SEPOLIA_CHAIN_ID = 84532;
 
@@ -33,9 +34,6 @@ export default async function handler(_req, res) {
 
     const payTo = process.env.PROFIT_PAY_TO || OWNER_APPROVED_PAY_TO;
     const payToConfigured = /^0x[a-fA-F0-9]{40}$/.test(payTo);
-    const cdpMainnetConfigured = Boolean(
-      process.env.CDP_API_KEY_ID && process.env.CDP_API_KEY_SECRET,
-    );
 
     return res.status(200).json({
       ok: true,
@@ -54,6 +52,7 @@ export default async function handler(_req, res) {
         maxDailyLossEur: 1,
         leverage: 0,
       },
+      publicProfitGateway: PUBLIC_PROFIT_GATEWAY,
       revenueRails: [
         {
           id: "x402-testnet",
@@ -61,7 +60,7 @@ export default async function handler(_req, res) {
           status: payToConfigured ? "ACTIVE_TESTNET" : "WAITING_PAY_TO",
           payToConfigured,
           payToAddress: payToConfigured ? payTo : null,
-          endpoint: "/api/x402-insight",
+          endpoint: `${PUBLIC_PROFIT_GATEWAY}/api/x402-insight`,
           network: "eip155:84532",
           chainId: BASE_SEPOLIA_CHAIN_ID,
           preferredAsset: "USDC",
@@ -72,15 +71,16 @@ export default async function handler(_req, res) {
         {
           id: "x402-mainnet",
           name: "x402 paid API — Base Mainnet",
-          status: cdpMainnetConfigured ? "READY_FOR_OWNER_TEST" : "LOCKED_CDP_AUTH_REQUIRED",
+          status: "OWNER_AUTH_PENDING",
           payToConfigured,
           payToAddress: payToConfigured ? payTo : null,
+          endpoint: `${PUBLIC_PROFIT_GATEWAY}/api/x402-insight-mainnet`,
+          statusEndpoint: `${PUBLIC_PROFIT_GATEWAY}/api/status`,
           network: "eip155:8453",
           chainId: BASE_CHAIN_ID,
           preferredAsset: "USDC",
           signingEnabled: false,
           realRevenue: true,
-          liveSettlementEnabled: false,
         },
         {
           id: "agent-wallet",
