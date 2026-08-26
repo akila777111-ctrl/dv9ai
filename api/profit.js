@@ -1,4 +1,6 @@
 const COINBASE_BASE = "https://api.coinbase.com/v2/prices";
+const OWNER_APPROVED_PAY_TO = "0x64DF28C1bDB59071429fa5E22228d2a2D0Fc145f";
+const BASE_CHAIN_ID = 8453;
 
 async function fetchSpot(pair) {
   const response = await fetch(`${COINBASE_BASE}/${pair}/spot`, {
@@ -28,6 +30,9 @@ export default async function handler(_req, res) {
       fetchSpot("ETH-USD"),
     ]);
 
+    const payTo = process.env.PROFIT_PAY_TO || OWNER_APPROVED_PAY_TO;
+    const payToConfigured = /^0x[a-fA-F0-9]{40}$/.test(payTo);
+
     return res.status(200).json({
       ok: true,
       mode: "PAPER",
@@ -40,6 +45,7 @@ export default async function handler(_req, res) {
       controls: {
         realTradingEnabled: false,
         walletConnected: false,
+        receiveAddressBound: payToConfigured,
         maxExperimentCapitalEur: 10,
         maxDailyLossEur: 1,
         leverage: 0,
@@ -48,14 +54,19 @@ export default async function handler(_req, res) {
         {
           id: "x402",
           name: "x402 paid API",
-          status: process.env.PROFIT_PAY_TO ? "CONFIGURED" : "WAITING_PAY_TO",
-          payToConfigured: Boolean(process.env.PROFIT_PAY_TO),
+          status: payToConfigured ? "PAY_TO_BOUND" : "WAITING_PAY_TO",
+          payToConfigured,
+          payToAddress: payToConfigured ? payTo : null,
+          network: "base",
+          chainId: BASE_CHAIN_ID,
+          preferredAsset: "USDC",
+          signingEnabled: false,
         },
         {
           id: "agent-wallet",
           name: "limited agent wallet",
           status: "LOCKED",
-          reason: "owner wallet binding required",
+          reason: "signing permission not granted",
         },
       ],
     });
