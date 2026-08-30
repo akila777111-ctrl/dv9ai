@@ -1,4 +1,5 @@
 import "./App.css";
+import EvidenceReceipt from "./components/EvidenceReceipt";
 import GatewayStatus from "./components/GatewayStatus";
 
 const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL || "#contact";
@@ -39,6 +40,7 @@ export default function App() {
       </section>
 
       <GatewayStatus />
+      <EvidenceReceipt />
 
       <section id="modules" className="cards">
         <div className="card">
