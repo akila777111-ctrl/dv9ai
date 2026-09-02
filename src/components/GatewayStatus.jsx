@@ -4,7 +4,7 @@ const INITIAL_STATUS = {
   phase: "loading",
   systemConfigured: false,
   deploymentMode: "UNKNOWN",
-  aiStatus: "AI_DISABLED",
+  aiStatus: "UNKNOWN",
 };
 
 /** @param {{ tone: "preview" | "neutral" | "off" | "warning" | "ok" | "error", children: import("react").ReactNode }} props */
@@ -12,9 +12,18 @@ function StatusPill({ tone, children }) {
   return <span className={`statusPill statusPill--${tone}`}>{children}</span>;
 }
 
+function normalizeMode(value) {
+  if (typeof value !== "string" || !value.trim()) return "UNKNOWN";
+  return value.trim().toUpperCase();
+}
+
+function normalizeAiStatus(value) {
+  if (typeof value !== "string" || !value.trim()) return "UNKNOWN";
+  return value.trim().toUpperCase();
+}
+
 export default function GatewayStatus() {
   const [status, setStatus] = useState(INITIAL_STATUS);
-  const isPreview = status.deploymentMode === "PREVIEW_ONLY";
 
   useEffect(() => {
     const controller = new AbortController();
@@ -26,14 +35,17 @@ export default function GatewayStatus() {
           signal: controller.signal,
         });
         const body = await response.json();
-        if (!response.ok || body?.ok !== true || !Array.isArray(body?.configuredBots)) {
+
+        if (!response.ok || body?.ok !== true) {
           throw new Error("invalid gateway response");
         }
+
+        const configuredBots = Array.isArray(body?.configuredBots) ? body.configuredBots : [];
         setStatus({
           phase: "ready",
-          systemConfigured: body.configuredBots.includes("system"),
-          deploymentMode: body.deploymentMode === "PREVIEW_ONLY" ? "PREVIEW_ONLY" : "STANDARD",
-          aiStatus: body.aiRuntimeStatus === "AI_ENABLED" ? "AI_ENABLED" : "AI_DISABLED",
+          systemConfigured: configuredBots.includes("system"),
+          deploymentMode: normalizeMode(body?.deploymentMode),
+          aiStatus: normalizeAiStatus(body?.aiRuntimeStatus),
         });
       } catch (error) {
         if (!(error instanceof DOMException && error.name === "AbortError")) {
@@ -46,33 +58,41 @@ export default function GatewayStatus() {
     return () => controller.abort();
   }, []);
 
+  const aiTone = status.aiStatus.includes("ENABLED") || status.aiStatus.includes("READY") || status.aiStatus.includes("ONLINE")
+    ? "ok"
+    : status.aiStatus === "UNKNOWN"
+      ? "neutral"
+      : "warning";
+
   return (
     <section className="runtimePanel" aria-labelledby="runtime-title">
       <div>
-        <p className="sectionLabel">Runtime status</p>
+        <p className="sectionLabel">LIVE / CONNECTOR STATUS</p>
         <h2 id="runtime-title">
           {status.phase === "loading"
-            ? "Проверка runtime"
-            : isPreview
-              ? "Безопасный Preview-контур"
-              : "Production-контур DV9"}
+            ? "Синхронизация с DV9 runtime"
+            : status.phase === "error"
+              ? "Runtime сейчас не отвечает"
+              : "DV9 runtime обнаружен"}
         </h2>
         <p>
-          {isPreview
-            ? "Интерфейс работает в демонстрационном режиме. Платные AI-вызовы и production API не используются."
-            : "Telegram gateway работает в Production. Платные AI-вызовы остаются отключёнными до подтверждения владельца."}
+          {status.phase === "loading"
+            ? "Читаю фактическое состояние gateway и подключённых сервисов."
+            : status.phase === "error"
+              ? "Интерфейс продолжает работать; runtime появится здесь автоматически после подключения."
+              : "Панель показывает состояние, которое сообщает backend. Политики, ключи и права подключаются отдельной конфигурацией."}
         </p>
       </div>
       <div className="runtimeStatuses" aria-live="polite">
-        <StatusPill tone={isPreview ? "preview" : "neutral"}>{status.deploymentMode}</StatusPill>
-        <StatusPill tone={status.aiStatus === "AI_ENABLED" ? "ok" : "off"}>{status.aiStatus}</StatusPill>
-        {status.phase === "loading" ? <StatusPill tone="neutral">GATEWAY_CHECKING</StatusPill> : null}
+        <StatusPill tone={status.phase === "error" ? "error" : "neutral"}>{status.deploymentMode}</StatusPill>
+        <StatusPill tone={aiTone}>{status.aiStatus}</StatusPill>
+        {status.phase === "loading" ? <StatusPill tone="neutral">SYNCING</StatusPill> : null}
         {status.phase === "ready" ? (
           <StatusPill tone={status.systemConfigured ? "ok" : "warning"}>
-            {status.systemConfigured ? "SYSTEM_BOT_READY" : "SYSTEM_BOT_CONFIG_REQUIRED"}
+            {status.systemConfigured ? "SYSTEM_CONNECTOR_READY" : "SYSTEM_CONNECTOR_OPEN"}
           </StatusPill>
         ) : null}
-        {status.phase === "error" ? <StatusPill tone="error">GATEWAY_UNAVAILABLE</StatusPill> : null}
+        {status.phase === "error" ? <StatusPill tone="error">GATEWAY_OFFLINE</StatusPill> : null}
       </div>
     </section>
   );
