@@ -50,6 +50,9 @@ Open Vercel Dashboard → project `dv9ai` → Settings → Environment Variables
 | `DV9_AI_API_KEY` | server | yes | optional complete AI set |
 | `DV9_AI_MODEL` | server | no | optional complete AI set |
 | `DV9_AI_ENABLED` | server | no | explicit owner opt-in; never enable in Preview |
+| `DV9_CONTAINMENT_MODE` | server | no | `ENFORCE` in Production |
+| `DV9_CONTAINMENT_KILL_SWITCH` | server | no | `false` normally; `true` stops AI egress |
+| `DV9_AI_EGRESS_ALLOWLIST` | server | no | exact approved provider hosts; empty fails closed |
 
 Use `https://www.dv9.com.ua` for both production origins and `https://t.me/DV9_SYSTEMbot` for the public browser link. Enter values only in Vercel. Previously published Telegram tokens are compromised and must be revoked/reissued through BotFather before use.
 
