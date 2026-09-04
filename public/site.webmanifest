@@ -1,0 +1,17 @@
+{
+  "name": "DV9 Construction Intelligence",
+  "short_name": "DV9",
+  "description": "Управляемая человеком инженерная экосистема для строительства.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05080c",
+  "theme_color": "#05080c",
+  "icons": [
+    {
+      "src": "/dv9-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
