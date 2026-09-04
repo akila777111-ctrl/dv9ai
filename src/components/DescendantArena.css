@@ -1,0 +1,130 @@
+.arenaPanel {
+  margin: 0 8% 40px;
+  padding: 30px;
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  background: rgba(17, 24, 39, 0.9);
+  box-shadow: 0 0 48px rgba(126, 34, 206, 0.12);
+}
+
+.arenaHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+  align-items: start;
+}
+
+.arenaHeader h2 {
+  margin: 4px 0 10px;
+}
+
+.arenaHeader p {
+  margin: 0;
+  color: #e2e8f0;
+  line-height: 1.55;
+}
+
+.arenaEmpty {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px dashed rgba(251, 191, 36, 0.55);
+  background: rgba(120, 53, 15, 0.16);
+  display: grid;
+  gap: 8px;
+}
+
+.arenaEmpty strong {
+  font-size: 26px;
+  color: #fbbf24;
+}
+
+.arenaEmpty span {
+  color: #fde68a;
+}
+
+.arenaCandidates {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.arenaCandidate {
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(15, 23, 42, 0.86);
+}
+
+.arenaCandidateHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.arenaMetrics {
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.arenaMetrics div {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.arenaMetrics dt {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.arenaMetrics dd {
+  margin: 4px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 900;
+}
+
+.arenaEvidence {
+  display: grid;
+  gap: 5px;
+}
+
+.arenaEvidence span {
+  color: #94a3b8;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.arenaEvidence code {
+  overflow-wrap: anywhere;
+  color: #c4b5fd;
+}
+
+.arenaRules {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.arenaRules code {
+  padding: 7px 9px;
+  border: 1px solid rgba(196, 181, 253, 0.35);
+  color: #ddd6fe;
+  background: rgba(76, 29, 149, 0.18);
+}
+
+@media (max-width: 700px) {
+  .arenaPanel {
+    margin: 0 5% 30px;
+    padding: 24px;
+  }
+
+  .arenaHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .arenaMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

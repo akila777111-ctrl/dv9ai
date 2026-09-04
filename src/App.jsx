@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import "./App.css";
 import GatewayStatus from "./components/GatewayStatus";
+import HydronikStatus from "./components/HydronikStatus";
+import DescendantArena from "./components/DescendantArena";
+import SkillCapsuleRegistry from "./components/SkillCapsuleRegistry";
 
 const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL || "https://t.me/DV9_SYSTEMbot";
 const telegramIsConfigured = telegramBotUrl.startsWith("https://t.me/");
@@ -125,6 +128,9 @@ export default function App() {
       </section>
 
       <GatewayStatus />
+      <HydronikStatus />
+      <DescendantArena />
+      <SkillCapsuleRegistry />
 
       <section className="future-section architecture-section" id="architecture">
         <div className="section-rail" aria-hidden="true"><span>02</span><i /></div>
