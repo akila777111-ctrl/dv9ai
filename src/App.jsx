@@ -5,6 +5,7 @@ import ModuleCard from "./components/ModuleCard";
 import ModuleDrawer from "./components/ModuleDrawer";
 import ModuleVisual from "./components/ModuleVisual";
 import PlanerkaSection from "./components/PlanerkaSection";
+import TradingAgentPanel from "./components/TradingAgentPanel";
 import { defaultPlanerkaResources, dv9Modules } from "./data/modules";
 
 const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL || "https://t.me/DV9_SYSTEMbot";
@@ -104,6 +105,7 @@ export default function App() {
           <a href="#architecture" onClick={closeMenu}>Архитектура</a>
           <a href="#organs" onClick={closeMenu}>Органы</a>
           <a href="#planerka" onClick={closeMenu}>Planёрka</a>
+          <a href="#trading" onClick={closeMenu}>Trading</a>
           <a href="#intelligence" onClick={closeMenu}>AI-команда</a>
           <a href="#protocol" onClick={closeMenu}>Контроль</a>
         </nav>
@@ -210,8 +212,10 @@ export default function App() {
         onToggleResource={(moduleId) => togglePlannerModule(moduleId, false)}
       />
 
+      <TradingAgentPanel />
+
       <section className="future-section intelligence-section" id="intelligence">
-        <div className="section-rail" aria-hidden="true"><span>05</span><i /></div>
+        <div className="section-rail" aria-hidden="true"><span>06</span><i /></div>
         <div className="future-section-head">
           <div><span className="future-kicker">INTELLIGENCE / ROUTING</span><h2>Мозг выбирается<br />под задачу</h2></div>
           <p>AI-профиль — не начальник системы. Planёрka назначает его по типу работы, а HYDRA сохраняет политику, контекст, лимиты и проверку результата.</p>
@@ -248,7 +252,7 @@ export default function App() {
       </section>
 
       <section className="future-section protocol-section" id="protocol">
-        <div className="section-rail" aria-hidden="true"><span>06</span><i /></div>
+        <div className="section-rail" aria-hidden="true"><span>07</span><i /></div>
         <div className="protocol-layout">
           <div className="protocol-copy">
             <span className="future-kicker">OWNER / PROTOCOL</span>
@@ -282,7 +286,7 @@ export default function App() {
       </section>
 
       <section className="future-section evidence-section" id="evidence">
-        <div className="section-rail" aria-hidden="true"><span>07</span><i /></div>
+        <div className="section-rail" aria-hidden="true"><span>08</span><i /></div>
         <div className="future-section-head compact">
           <div><span className="future-kicker">USEFUL ACTION / EVIDENCE</span><h2>Полезность считается после результата</h2></div>
           <p>Сообщения, heartbeat и повторный анализ не повышают коэффициент. В числитель попадает только проверенное действие с receipt, которое продвинуло цель, сняло блокер или снизило доказанный риск.</p>
