@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "server": "dv9",
+  "mode": "direct-x402",
+  "network": "eip155:8453",
+  "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "payTo": "0x64DF28C1bDB59071429fa5E22228d2a2D0Fc145f",
+  "resources": [
+    {
+      "name": "DV9 RC Pour Readiness Precheck",
+      "method": "GET,POST",
+      "url": "https://www.dv9.com.ua/api/construction/rc-pour-readiness-live",
+      "price": "0.02 USDC",
+      "description": "Deterministic reinforced-concrete pour-readiness decision-support precheck. Not statutory inspection or permission to pour.",
+      "openapi": "https://www.dv9.com.ua/openapi.json"
+    }
+  ]
+}
