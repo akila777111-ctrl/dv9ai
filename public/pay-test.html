@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DV9 — тест оплаты 0,02 USDC</title>
+<style>
+  :root{font-family:Inter,system-ui,sans-serif;color-scheme:dark}
+  body{margin:0;background:#090b10;color:#f5f7fb;min-height:100vh;display:grid;place-items:center;padding:20px}
+  .card{width:min(680px,100%);background:#11151d;border:1px solid #2a3140;border-radius:22px;padding:24px;box-sizing:border-box;box-shadow:0 22px 70px #0008}
+  h1{font-size:25px;margin:0 0 12px}.muted{color:#9da8b8;line-height:1.55}.amount{font-size:42px;font-weight:800;margin:20px 0 4px}.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#162033;border:1px solid #2c4268;font-size:13px}
+  button{width:100%;border:0;border-radius:15px;padding:16px;font-size:17px;font-weight:800;background:#f4f7fb;color:#0a0d12;margin-top:20px;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+  pre{white-space:pre-wrap;word-break:break-word;background:#090c12;border:1px solid #252c38;border-radius:14px;padding:14px;min-height:58px;margin-top:16px;color:#c9d4e5}
+  .ok{color:#7ef0a5}.bad{color:#ff9b9b}.small{font-size:13px}.grid{display:grid;gap:9px;margin-top:18px}.row{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #202632;padding-bottom:8px}.row span:last-child{text-align:right;word-break:break-all}
+</style>
+</head>
+<body>
+<main class="card">
+  <span class="tag">OWNER-GATED REAL TEST</span>
+  <h1>DV9 x402 — реальный тест кассы</h1>
+  <p class="muted">Один платёж в сети Base. Страница никогда не просит seed/private key. Кошелёк подписывает только разрешение на <b>0,02 USDC</b>; settlement выполняет x402 facilitator.</p>
+  <div class="amount">0,02 USDC</div>
+  <div class="small muted">Жёсткий лимит этой страницы: 20 000 atomic USDC = $0.02.</div>
+  <div class="grid">
+    <div class="row"><span>Сеть</span><span>Base mainnet</span></div>
+    <div class="row"><span>Продукт</span><span>DV9 RC Pour Readiness v2</span></div>
+    <div class="row"><span>Получатель</span><span>0x64DF28C1bDB59071429fa5E22228d2a2D0Fc145f</span></div>
+  </div>
+  <button id="pay">Подключить кошелёк и оплатить 0,02 USDC</button>
+  <pre id="status">Готово к проверке. Ничего ещё не списано.</pre>
+  <p class="small muted">Если платящий адрес совпадает с адресом получателя, это будет только технический self-test и не будет считаться выручкой.</p>
+</main>
+<script>
+const payButton = document.getElementById('pay');
+const statusBox = document.getElementById('status');
+const MAX_AMOUNT = 20000n;
+const EXPECTED_PAYTO = '0x64df28c1bdb59071429fa5e22228d2a2d0fc145f';
+const EXPECTED_ASSET = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913';
+const CHAIN_HEX = '0x2105';
+const ENDPOINT = '/api/construction/rc-pour-readiness-v2?drawings_available=true&rebar_checked=true&cover_checked=true&formwork_checked=true&embeds_checked=true&cleanliness_checked=true&concrete_spec_confirmed=true&access_and_sequence_checked=true';
+
+const show = (text, cls='') => { statusBox.className = cls; statusBox.textContent = text; };
+const hex32 = () => '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map(b=>b.toString(16).padStart(2,'0')).join('');
+const b64json = obj => btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+
+async function ensureBase() {
+  const chain = await ethereum.request({method:'eth_chainId'});
+  if (chain.toLowerCase() === CHAIN_HEX) return;
+  try {
+    await ethereum.request({method:'wallet_switchEthereumChain', params:[{chainId:CHAIN_HEX}]});
+  } catch (error) {
+    if (error && error.code === 4902) {
+      await ethereum.request({method:'wallet_addEthereumChain', params:[{
+        chainId:CHAIN_HEX,
+        chainName:'Base',
+        nativeCurrency:{name:'Ether',symbol:'ETH',decimals:18},
+        rpcUrls:['https://mainnet.base.org'],
+        blockExplorerUrls:['https://basescan.org']
+      }]});
+    } else throw error;
+  }
+}
+
+async function usdcBalance(address, asset) {
+  const selector = '70a08231';
+  const arg = address.toLowerCase().replace(/^0x/,'').padStart(64,'0');
+  const result = await ethereum.request({method:'eth_call', params:[{to:asset,data:'0x'+selector+arg},'latest']});
+  return BigInt(result || '0x0');
+}
+
+async function getChallenge() {
+  const response = await fetch(ENDPOINT, {cache:'no-store'});
+  const body = await response.json();
+  if (response.status !== 402) throw new Error('Касса не вернула ожидаемый HTTP 402. Статус: '+response.status);
+  if (!body?.accepts?.length) throw new Error('В ответе нет платёжных условий.');
+  return body;
+}
+
+function assertSafe(requirement) {
+  const amount = BigInt(requirement.amount);
+  if (requirement.network !== 'eip155:8453') throw new Error('Остановлено: неожиданная сеть '+requirement.network);
+  if (String(requirement.asset).toLowerCase() !== EXPECTED_ASSET) throw new Error('Остановлено: неожиданный USDC contract.');
+  if (String(requirement.payTo).toLowerCase() !== EXPECTED_PAYTO) throw new Error('Остановлено: изменился получатель.');
+  if (amount !== MAX_AMOUNT) throw new Error('Остановлено: цена изменилась. Ожидалось ровно 0,02 USDC.');
+}
+
+payButton.addEventListener('click', async () => {
+  payButton.disabled = true;
+  try {
+    if (!window.ethereum) {
+      throw new Error('Кошелёк не обнаружен. Открой эту же страницу во встроенном браузере MetaMask/Coinbase Wallet или другом EVM-кошельке с поддержкой dApp. Seed/private key сюда вводить НЕ надо.');
+    }
+
+    show('1/5 Подключаю кошелёк…');
+    const accounts = await ethereum.request({method:'eth_requestAccounts'});
+    const account = accounts?.[0];
+    if (!account) throw new Error('Кошелёк не дал адрес.');
+
+    show('2/5 Проверяю сеть Base и счёт 0,02 USDC…');
+    await ensureBase();
+    const challenge = await getChallenge();
+    const accepted = challenge.accepts[0];
+    assertSafe(accepted);
+
+    const balance = await usdcBalance(account, accepted.asset);
+    if (balance < MAX_AMOUNT) {
+      throw new Error(`Недостаточно USDC в выбранном Base-кошельке. Нужно 0,02 USDC, доступно ${(Number(balance)/1e6).toFixed(6)} USDC.`);
+    }
+
+    const now = Math.floor(Date.now()/1000);
+    const authorization = {
+      from: account,
+      to: accepted.payTo,
+      value: accepted.amount,
+      validAfter: String(now - 60),
+      validBefore: String(now + 300),
+      nonce: hex32(),
+    };
+
+    const typedData = {
+      types: {
+        EIP712Domain: [
+          {name:'name',type:'string'},
+          {name:'version',type:'string'},
+          {name:'chainId',type:'uint256'},
+          {name:'verifyingContract',type:'address'},
+        ],
+        TransferWithAuthorization: [
+          {name:'from',type:'address'},
+          {name:'to',type:'address'},
+          {name:'value',type:'uint256'},
+          {name:'validAfter',type:'uint256'},
+          {name:'validBefore',type:'uint256'},
+          {name:'nonce',type:'bytes32'},
+        ],
+      },
+      primaryType: 'TransferWithAuthorization',
+      domain: {
+        name: accepted.extra?.name || 'USD Coin',
+        version: accepted.extra?.version || '2',
+        chainId: 8453,
+        verifyingContract: accepted.asset,
+      },
+      message: authorization,
+    };
+
+    show(`3/5 Проверь окно кошелька. Подписывается ровно 0,02 USDC.\nПлательщик: ${account}`);
+    const signature = await ethereum.request({
+      method:'eth_signTypedData_v4',
+      params:[account, JSON.stringify(typedData)]
+    });
+
+    const paymentPayload = {
+      x402Version: 2,
+      resource: challenge.resource,
+      accepted,
+      payload: {signature, authorization},
+      extensions: challenge.extensions || {},
+    };
+
+    show('4/5 Подпись получена. Отправляю её x402-серверу для verify + settlement…');
+    const paid = await fetch(ENDPOINT, {
+      method:'GET',
+      cache:'no-store',
+      headers:{'PAYMENT-SIGNATURE': b64json(paymentPayload)}
+    });
+    const result = await paid.json();
+    if (!paid.ok) throw new Error(`Settlement не прошёл (${paid.status}): ${result?.error || JSON.stringify(result)}`);
+
+    const tx = result?.payment?.transaction || 'transaction hash не вернулся';
+    const self = account.toLowerCase() === EXPECTED_PAYTO;
+    show(`5/5 УСПЕХ. x402 settlement подтверждён.\nСумма: 0,02 USDC\nTX: ${tx}\n${self ? 'Это self-test: техническая цепочка подтверждена, но выручкой не считаем.' : 'Платящий адрес отличается от получателя: это внешний settlement.'}`, 'ok');
+    payButton.textContent = 'Тест выполнен';
+  } catch (error) {
+    show('Остановлено без повторной попытки:\n' + (error?.message || String(error)), 'bad');
+    payButton.disabled = false;
+    payButton.textContent = 'Повторить только после проверки';
+  }
+});
+</script>
+</body>
+</html>
