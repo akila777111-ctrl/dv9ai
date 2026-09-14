@@ -2,12 +2,12 @@
   "openapi": "3.1.0",
   "info": {
     "title": "DV9 Construction Paid API",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Paid deterministic construction decision-support via x402 on Base USDC. Outputs are prechecks only and do not replace statutory inspection, licensed engineering sign-off, or project acceptance."
   },
   "servers": [{"url": "https://www.dv9.com.ua"}],
   "paths": {
-    "/api/construction/rc-pour-readiness-live": {
+    "/api/construction/rc-pour-readiness-v2": {
       "get": {
         "summary": "RC pour readiness precheck",
         "description": "Returns an x402 Payment Required challenge until a valid payment proof is supplied.",
