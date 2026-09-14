@@ -1,0 +1,61 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DV9 Construction Paid API",
+    "version": "1.0.0",
+    "description": "Paid deterministic construction decision-support via x402 on Base USDC. Outputs are prechecks only and do not replace statutory inspection, licensed engineering sign-off, or project acceptance."
+  },
+  "servers": [{"url": "https://www.dv9.com.ua"}],
+  "paths": {
+    "/api/construction/rc-pour-readiness-live": {
+      "get": {
+        "summary": "RC pour readiness precheck",
+        "description": "Returns an x402 Payment Required challenge until a valid payment proof is supplied.",
+        "parameters": [
+          {"name":"drawings_available","in":"query","required":true,"schema":{"type":"boolean"}},
+          {"name":"rebar_checked","in":"query","required":true,"schema":{"type":"boolean"}},
+          {"name":"cover_checked","in":"query","required":true,"schema":{"type":"boolean"}},
+          {"name":"formwork_checked","in":"query","required":true,"schema":{"type":"boolean"}},
+          {"name":"embeds_checked","in":"query","required":true,"schema":{"type":"boolean"}},
+          {"name":"cleanliness_checked","in":"query","required":true,"schema":{"type":"boolean"}},
+          {"name":"concrete_spec_confirmed","in":"query","required":true,"schema":{"type":"boolean"}},
+          {"name":"access_and_sequence_checked","in":"query","required":true,"schema":{"type":"boolean"}}
+        ],
+        "responses": {
+          "200": {"description": "Paid deterministic decision-support result"},
+          "402": {"description": "x402 Payment Required — 0.02 USDC on Base"},
+          "400": {"description": "Missing/invalid checklist data"}
+        }
+      },
+      "post": {
+        "summary": "RC pour readiness precheck",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["drawings_available","rebar_checked","cover_checked","formwork_checked","embeds_checked","cleanliness_checked","concrete_spec_confirmed","access_and_sequence_checked"],
+                "properties": {
+                  "drawings_available":{"type":"boolean"},
+                  "rebar_checked":{"type":"boolean"},
+                  "cover_checked":{"type":"boolean"},
+                  "formwork_checked":{"type":"boolean"},
+                  "embeds_checked":{"type":"boolean"},
+                  "cleanliness_checked":{"type":"boolean"},
+                  "concrete_spec_confirmed":{"type":"boolean"},
+                  "access_and_sequence_checked":{"type":"boolean"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Paid deterministic decision-support result"},
+          "402": {"description": "x402 Payment Required — 0.02 USDC on Base"},
+          "400": {"description": "Missing/invalid checklist data"}
+        }
+      }
+    }
+  }
+}
