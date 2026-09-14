@@ -33,7 +33,8 @@ function getHeader(req, name) {
 function getResourceUrl(req) {
   const proto = getHeader(req, "x-forwarded-proto") || "https";
   const host = getHeader(req, "x-forwarded-host") || getHeader(req, "host") || "dv9.com.ua";
-  return `${proto}://${host}/api/construction/rc-pour-readiness`;
+  const path = String(req.url || "/api/construction/rc-pour-readiness");
+  return `${proto}://${host}${path}`;
 }
 
 function paymentRequirement(resourceUrl) {
@@ -68,7 +69,23 @@ function send402(res, requirements, error) {
   return res.status(402).json(body);
 }
 
-function normalizeBody(req) {
+function parseBoolean(value) {
+  if (value === true || value === "true" || value === "1") return true;
+  if (value === false || value === "false" || value === "0") return false;
+  return undefined;
+}
+
+function normalizeInput(req) {
+  if (req.method === "GET") {
+    const query = req.query || {};
+    const payload = {};
+    for (const [key] of REQUIRED_CHECKS) {
+      const parsed = parseBoolean(query[key]);
+      if (parsed !== undefined) payload[key] = parsed;
+    }
+    return payload;
+  }
+
   if (req.body && typeof req.body === "object") return req.body;
   if (typeof req.body === "string") {
     try {
@@ -134,17 +151,26 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, PAYMENT-SIGNATURE");
   res.setHeader("Access-Control-Expose-Headers", "PAYMENT-REQUIRED, PAYMENT-RESPONSE");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Cache-Control", "no-store");
 
   if (req.method === "OPTIONS") return res.status(204).end();
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST, OPTIONS");
+  if (req.method !== "GET" && req.method !== "POST") {
+    res.setHeader("Allow", "GET, POST, OPTIONS");
     return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 
-  const payload = normalizeBody(req);
+  const payload = normalizeInput(req);
   if (!payload) return res.status(400).json({ error: "INVALID_JSON_BODY" });
+
+  const missing = REQUIRED_CHECKS.filter(([key]) => !(key in payload)).map(([key]) => key);
+  if (missing.length) {
+    return res.status(400).json({
+      error: "MISSING_REQUIRED_CHECKS",
+      missing,
+      example: Object.fromEntries(REQUIRED_CHECKS.map(([key]) => [key, true])),
+    });
+  }
 
   const resourceUrl = getResourceUrl(req);
   const required = paymentRequirement(resourceUrl);
@@ -162,7 +188,6 @@ export default async function handler(req, res) {
     return send402(res, required, "PAYMENT-SIGNATURE header is invalid base64/json");
   }
 
-  // Fail closed on a client attempting to pay different terms than advertised.
   const accepted = paymentPayload?.accepted;
   if (
     paymentPayload?.x402Version !== 2 ||
