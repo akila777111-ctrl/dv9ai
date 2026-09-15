@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "dv9-paid-mcp-shadow",
+  "compatibility_date": "2026-09-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "src/server.ts",
+  "vars": {
+    "DV9_MCP_NETWORK": "eip155:84532",
+    "DV9_MCP_RECIPIENT": "0x64DF28C1bDB59071429fa5E22228d2a2D0Fc145f",
+    "DV9_MCP_PRICE_USD": "0.02",
+    "DV9_MCP_FACILITATOR": "https://x402.org/facilitator"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "Dv9PaidMcp",
+        "name": "DV9_PAID_MCP"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "new_sqlite_classes": ["Dv9PaidMcp"],
+      "tag": "v1"
+    }
+  ],
+  "limits": {
+    "cpu_ms": 10,
+    "subrequests": 5
+  }
+}
